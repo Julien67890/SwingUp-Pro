@@ -698,11 +698,13 @@ const PREMIUM = {
   test:null
 };
 
-/* SwingUp Pro n'a pas de phase bêta ni de palier gratuit : payant dès le
-   départ (après l'essai de 7 jours géré par Stripe). Ne pas repasser
-   actif à true — ça rouvrirait l'accès à tout le monde sans abonnement. */
+/* Mode bêta temporaire (aligné sur BETA_OPEN dans le index.html racine) :
+   accès complet à tout le monde le temps de finir de brancher Stripe.
+   Repasser actif à false une fois CHECKOUT_URL/PORTAL_URL/PRICE_ID
+   configurés pour réactiver le paywall (et repasser BETA_OPEN à false
+   dans le index.html racine + BETA.actif dans score/index.html). */
 const BETA = {
-  actif:false,
+  actif:true,
   fin:'',
   limite:null
 };

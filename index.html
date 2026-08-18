@@ -299,6 +299,13 @@ const PORTAL_URL = 'A_REMPLIR';
    ▲▲▲  FIN A REMPLIR  ▲▲▲
    ======================================================================= */
 
+/* Mode bêta temporaire : accès complet à tout le monde, sans abonnement,
+   le temps de finir de brancher Stripe. Repasser à false une fois
+   CHECKOUT_URL/PORTAL_URL/PRICE_ID configurés pour réactiver le paywall
+   (penser aussi à repasser BETA.actif à false dans telemetre/index.html
+   et score/index.html, où le même flag existe). */
+const BETA_OPEN = true;
+
 let fbReady = false, auth = null, fs = null, currentUser = null, billing = null, unsubBilling = null;
 
 function initFirebase(){
@@ -336,9 +343,12 @@ function friendlyAuthError(code){
     'auth/email-already-in-use':"Un compte existe déjà avec cette adresse.",
     'auth/weak-password':"Mot de passe trop court (6 caractères minimum).",
     'auth/popup-closed-by-user':"Connexion annulée.",
-    'auth/network-request-failed':"Connexion réseau impossible."
+    'auth/network-request-failed':"Connexion réseau impossible.",
+    'auth/configuration-not-found':"Authentification non configurée sur le projet Firebase.",
+    'auth/operation-not-allowed':"Ce mode de connexion n'est pas activé sur le projet Firebase.",
+    'auth/unauthorized-domain':"Ce domaine n'est pas autorisé pour la connexion."
   };
-  return map[code] || "Une erreur est survenue. Réessaie.";
+  return map[code] || ("Une erreur est survenue (" + (code || 'inconnue') + "). Réessaie.");
 }
 
 /* ---------- écran Connexion ---------- */
@@ -428,6 +438,7 @@ document.getElementById('trialBadgeManage').addEventListener('click', async ()=>
 
 /* ---------- routage : auth -> abonnement -> shell ---------- */
 function isPremium(){
+  if (BETA_OPEN) return true;
   if (!billing || ['active','trialing'].indexOf(billing.status) < 0) return false;
   if (billing.until && Date.now() > billing.until + 3*864e5) return false; /* 3 jours de grâce, comme les 2 modules */
   return true;
