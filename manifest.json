@@ -1,7 +1,7 @@
 {
   "name": "SwingUp Pro",
   "short_name": "SwingUp Pro",
-  "description": "SwingUp Pro : télémètre de golf (distances au green, dénivelé, club conseillé) et carte de score (score par trou, handicap, historique), réunis dans une seule application. Gratuit, installation directe, fonctionne hors ligne.",
+  "description": "SwingUp Pro : télémètre de golf (distances au green, dénivelé, club conseillé) et carte de score (score par trou, handicap, historique), réunis dans une seule application. 7 jours d'essai gratuit, puis 4,90€/mois. Fonctionne hors ligne.",
   "id": "/SwingUpPro/",
   "start_url": "./",
   "scope": "./",

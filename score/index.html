@@ -1665,50 +1665,54 @@ function hideBoot(){
 setTimeout(hideBoot,7000); /* filet de securite si le reseau ne repond pas */
 
 /* =======================================================================
-   ▼▼▼  CONFIGURATION FIREBASE  ▼▼▼
+   ▼▼▼  CONFIGURATION FIREBASE — compte SwingUp Pro (A REMPLIR)  ▼▼▼
+   Module embarqué dans SwingUp Pro : même projet Firebase que la coquille
+   (index.html racine) et que le télémètre, pour que la connexion et
+   l'abonnement soient partagés une seule fois pour toute l'application.
+   Coller ici EXACTEMENT le même firebaseConfig que dans le index.html
+   racine et dans telemetre/index.html. Voir README.md à la racine du projet.
    ======================================================================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyAwBree3yDA1TfnrZVePHy-2j3vw4zuFTI",
-  authDomain: "swingup-92a94.firebaseapp.com",
-  projectId: "swingup-92a94",
-  storageBucket: "swingup-92a94.firebasestorage.app",
-  messagingSenderId: "1078233196822",
-  appId: "1:1078233196822:web:4d241879376a3aec2d4837",
-  measurementId: "G-25LM3FQQPK"
+  apiKey: 'A_REMPLIR',
+  authDomain: 'A_REMPLIR',
+  projectId: 'A_REMPLIR',
+  storageBucket: 'A_REMPLIR',
+  messagingSenderId: 'A_REMPLIR',
+  appId: 'A_REMPLIR'
 };
 /* =======================================================================
-   ▼▼▼  ABONNEMENT PREMIUM  ▼▼▼
+   ▼▼▼  ABONNEMENT — un seul abonnement SwingUp Pro pour toute l'appli  ▼▼▼
+   L'écran d'abonnement principal est celui de la coquille (index.html
+   racine) : un utilisateur qui arrive jusqu'ici est déjà authentifié et
+   déjà abonné (même projet Firebase, même statut users/{uid}/billing/status).
+   Ce bloc ne sert donc que de filet de sécurité si ce module est ouvert
+   hors du shell SwingUp Pro. Coller les mêmes URLs de Cloud Functions que
+   dans index.html racine (voir README.md).
    ======================================================================= */
 const PREMIUM={
-  name:'SwingUp Premium',
-  price:'2,90 € / mois',              /* textes affichés, purement cosmétiques */
-  priceShort:'2,90 €/mois',
-  note:'Sans engagement, résiliable à tout moment.',
-  /* Nombre de parties visibles sans abonnement, dans les statistiques. */
+  name:'SwingUp Pro',
+  price:'4,90 € / mois',
+  priceShort:'4,90 €/mois',
+  note:"7 jours d'essai gratuit, puis sans engagement, résiliable à tout moment.",
+  /* Sans effet en pratique : le shell SwingUp Pro bloque déjà l'accès avant
+     d'arriver ici tant que l'essai/abonnement n'est pas actif. Valeur
+     laissée à l'identique de l'app d'origine pour ce filet de sécurité
+     (attention : ailleurs dans ce fichier, FREE_ROUNDS retombe à 3 si
+     cette valeur est falsy — donc 0 ici ne change rien, c'est normal). */
   freeRounds:3,
-  /* URL des Cloud Functions. Tant qu'elles valent null, le bouton
-     annonce simplement que le paiement arrive bientôt. */
-  checkoutUrl:'https://europe-west1-swingup-92a94.cloudfunctions.net/createCheckoutSession',
-  portalUrl:'https://europe-west1-swingup-92a94.cloudfunctions.net/createPortalLink',
-  /* Forçage manuel, pour vérifier l'app dans un état donné :
-       null  = comportement normal (bêta, puis abonnement réel)
-       true  = tout ouvert   /   false = tout verrouillé
-     À laisser sur null en dehors des tests. */
+  checkoutUrl:'A_REMPLIR',
+  portalUrl:'A_REMPLIR',
   test:null
 };
 
-/* Phase bêta.
-   actif:true  → l'app est entièrement ouverte, rien n'est vendu.
-   Le jour de la bascule, passer actif à false : les comptes créés
-   avant « limite » gardent leur accès à vie, les nouveaux passent
-   par l'abonnement. Les deux dates sont volontairement séparées :
-   on peut prolonger l'affichage sans reclasser des comptes. */
+/* SwingUp Pro n'a pas de phase bêta ni de palier gratuit : payant dès le
+   départ (après l'essai de 7 jours géré par Stripe). Ne pas repasser
+   actif à true — ça rouvrirait l'accès à tout le monde sans abonnement. */
 const BETA={
-  actif:true,
-  fin:'31 décembre 2026',                      /* texte affiché */
-  limite:Date.parse('2026-12-31T23:59:59+01:00') /* antériorité des comptes */
+  actif:false,
+  fin:'',
+  limite:null
 };
-/* ▲▲▲  Rien d'autre à modifier en dessous.  ▲▲▲ */
 
 /* Mesure d'audience Google Analytics 4.
    Tant que id est vide, aucun script n'est chargé et aucune bannière
@@ -3719,6 +3723,44 @@ if('serviceWorker' in navigator){
       .catch(e=>console.warn('SW non enregistré :',e));
   });
 }
+</script>
+<script>
+/* =========================================================================
+   Navigation SwingUp Pro (uniquement quand ce module est embarqué dans le
+   shell, cf. classe "su-embedded" posée sur <html> tout en haut du fichier) :
+   taper le logo ouvre le sélecteur de module, glisser depuis un bord de
+   l'écran bascule vers l'autre module. Sans effet si ce fichier est ouvert
+   seul, hors de SwingUp Pro.
+   ========================================================================= */
+(function(){
+  if (!document.documentElement.classList.contains('su-embedded')) return;
+  function ready(fn){ if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  ready(function(){
+    var mark = document.querySelector('header .mark');
+    if (mark){
+      mark.style.cursor = 'pointer';
+      mark.addEventListener('click', function(){
+        parent.postMessage({ source:'swingup-pro', action:'open-switcher' }, location.origin);
+      });
+    }
+
+    var EDGE = 32, THRESH = 70, MAXOFF = 60, sx = 0, sy = 0, tracking = false;
+    document.addEventListener('touchstart', function(e){
+      if (e.touches.length !== 1){ tracking = false; return; }
+      var t = e.touches[0];
+      tracking = (t.clientX <= EDGE || t.clientX >= window.innerWidth - EDGE);
+      if (tracking){ sx = t.clientX; sy = t.clientY; }
+    }, { capture:true, passive:true });
+    document.addEventListener('touchend', function(e){
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > THRESH && Math.abs(dy) < MAXOFF){
+        parent.postMessage({ source:'swingup-pro', action:'swipe', dir: dx < 0 ? 'left' : 'right' }, location.origin);
+      }
+    }, { capture:true, passive:true });
+  });
+})();
 </script>
 </body>
 </html>

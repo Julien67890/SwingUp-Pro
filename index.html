@@ -8,11 +8,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SwingUp Pro">
 <meta name="theme-color" content="#1b4332">
-<meta name="description" content="SwingUp Pro : télémètre de golf et carte de score, réunis dans une seule application. Gratuit, fonctionne hors ligne.">
+<meta name="description" content="SwingUp Pro : télémètre de golf et carte de score, réunis dans une seule application. 4,90€/mois après 7 jours d'essai gratuit.">
 <title>SwingUp Pro | Télémètre &amp; carte de score golf</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="SwingUp Pro">
-<meta property="og:description" content="Télémètre de golf et carte de score réunis dans une seule application. Gratuit, sans store.">
+<meta property="og:description" content="Télémètre de golf et carte de score réunis dans une seule application. 7 jours d'essai gratuit, puis 4,90€/mois.">
 <meta property="og:site_name" content="SwingUp Pro">
 <meta property="og:locale" content="fr_FR">
 <link rel="manifest" href="manifest.json">
@@ -28,7 +28,6 @@
   --sand:#e9e2cf;--cream:#f6f3e9;--ink:#10261a;--flag:#d62828;--gold:#c9a227;
   --ok:#2d6a4f;--ok-bg:#dff0e5;--bad:#b3261e;--bad-bg:#fbe3e1;
   --shadow:0 18px 40px -18px rgba(8,30,18,.55);
-  --tabbar-h:64px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -71,6 +70,59 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 @keyframes bootsweep{from{transform:translateX(-110%)}to{transform:translateX(360%)}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
+/* ================= connexion / abonnement (ecrans plein ecran) ================= */
+#auth,#paywall{position:fixed;inset:0;z-index:900;overflow-y:auto}
+.gatewrap{min-height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.gatehead{text-align:center;margin-bottom:22px}
+.gatehead .mark{width:60px;height:60px;margin:0 auto 16px;border-radius:8px}
+.gatehead .mark svg{width:34px;height:34px}
+.gatehead h1{font-family:var(--serif);font-weight:900;color:var(--cream);font-size:1.7rem;line-height:1.05;letter-spacing:-.02em}
+.gatehead p{color:var(--green-glow);font-size:.82rem;margin-top:8px}
+.surface{background:linear-gradient(180deg,var(--cream),#efebdd);border-radius:6px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.4);overflow:hidden}
+.gatecard{padding:24px 22px 22px}
+.auth-tabs{display:flex;gap:8px;background:#f0ece0;border-radius:6px;padding:5px;margin-bottom:20px}
+.auth-tabs button{flex:1;border:none;background:transparent;padding:11px;border-radius:6px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.92rem;color:#8b8770;cursor:pointer;transition:all .18s}
+.auth-tabs button.on{background:#fff;color:var(--green-deep);box-shadow:0 4px 10px -6px rgba(0,0,0,.25)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--green-mid);margin-bottom:7px}
+.field input{width:100%;border:1.5px solid #e6e0cd;border-radius:6px;background:#fff;padding:14px;font-family:'Outfit',sans-serif;font-size:1rem;color:var(--green-deep);outline:none}
+.field input:focus{border-color:var(--green-mid)}
+.autherr{font-size:.82rem;color:var(--bad);background:var(--bad-bg);border-radius:6px;padding:11px 13px;margin-bottom:14px;line-height:1.45}
+.authsep{display:flex;align-items:center;gap:12px;margin:15px 0 13px;color:#a8a390;font-size:.74rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.authsep::before,.authsep::after{content:'';flex:1;height:1px;background:#e0dac6}
+.authlink{display:block;text-align:center;background:none;border:none;color:var(--green-mid);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;margin-top:14px;text-decoration:underline;width:100%}
+.btn{width:100%;border:none;border-radius:6px;padding:16px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,box-shadow .2s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(145deg,var(--green-mid),var(--green));color:var(--cream);box-shadow:0 14px 26px -14px rgba(27,67,50,.9)}
+.btn-primary:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+.btn-ghost{background:#fff;color:var(--green-mid);border:1.5px solid #d9d3bf}
+.btn-google{background:#fff;color:#3c4043;border:1.5px solid #dadce0}
+.btn-google svg{width:19px;height:19px}
+.btn.loading{opacity:.7;pointer-events:none}
+.btn svg{width:18px;height:18px}
+.footnote{color:rgba(246,243,233,.55);font-size:.72rem;text-align:center;margin-top:20px;line-height:1.5}
+.privlink,.footnote a{color:rgba(116,198,157,.85);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- écran abonnement ---------- */
+.plan{padding:20px 22px;text-align:center}
+.plan .price{font-family:var(--serif);font-weight:900;font-size:2.4rem;color:var(--green-deep);line-height:1}
+.plan .price small{font-family:'Outfit',sans-serif;font-weight:600;font-size:.95rem;color:#8b8770}
+.plan .trialtag{display:inline-block;margin:10px 0 16px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--green-deep);background:rgba(116,198,157,.35);padding:5px 12px;border-radius:999px}
+.plan ul{list-style:none;text-align:left;margin:14px 0 20px;display:grid;gap:10px}
+.plan li{display:flex;align-items:flex-start;gap:9px;font-size:.88rem;color:var(--green-deep);line-height:1.4}
+.plan li svg{width:16px;height:16px;flex:0 0 auto;margin-top:2px;color:var(--green-mid)}
+.plan .pnote{font-size:.74rem;color:#8b8770;margin-top:12px;line-height:1.4}
+.trialbadge{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:80;
+  background:rgba(19,54,31,.94);color:var(--cream);font-size:.78rem;font-weight:500;padding:11px 16px;border-radius:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;backdrop-filter:blur(6px);box-shadow:var(--shadow)}
+.trialbadge button{background:none;border:none;color:var(--green-glow);font-family:'Outfit',sans-serif;font-weight:600;font-size:.78rem;text-decoration:underline;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,20px);
+  background:rgba(19,54,31,.94);color:var(--cream);font-size:.85rem;font-weight:500;padding:11px 20px;border-radius:999px;z-index:1100;
+  opacity:0;pointer-events:none;transition:all .3s;backdrop-filter:blur(6px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
 /* ================= coquille app ================= */
 #shell{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
 #views{flex:1 1 auto;min-height:0;position:relative}
@@ -82,18 +134,27 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 @keyframes spin{to{transform:rotate(360deg)}}
 .view-loading p{color:rgba(246,243,233,.7);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 
-/* ================= barre d'onglets ================= */
-#tabbar{flex:0 0 auto;display:flex;background:linear-gradient(180deg,var(--cream),#efebdd);
-  box-shadow:0 -18px 40px -18px rgba(8,30,18,.6);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
-#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;
-  cursor:pointer;padding:8px 4px 7px;border-radius:6px;color:#8b8770;font-family:'Outfit',sans-serif;
-  transition:color .18s,background .18s}
-#tabbar button svg{width:23px;height:23px}
-#tabbar button span{font-size:.68rem;font-weight:600;letter-spacing:.02em}
-#tabbar button .dot{width:4px;height:4px;border-radius:50%;background:transparent;margin-top:1px;transition:background .18s}
-#tabbar button.on{color:var(--green-deep)}
-#tabbar button.on .dot{background:var(--gold)}
-#tabbar button:active{background:rgba(45,106,79,.08)}
+/* ================= bascule modules : logo (dans chaque module) + swipe ================= */
+#switcher{position:fixed;inset:0;z-index:950;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  background:rgba(8,20,13,.55);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s;
+  padding:0 14px calc(14px + env(safe-area-inset-bottom))}
+#switcher.on{opacity:1;visibility:visible}
+#switcher .sheet,#switcher .cancel{width:100%;max-width:420px;transform:translateY(16px);transition:transform .22s cubic-bezier(.2,.8,.3,1)}
+#switcher.on .sheet,#switcher.on .cancel{transform:none}
+#switcher .sheethead{text-align:center;padding:16px 16px 6px;color:rgba(246,243,233,.8);font-size:.68rem;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase}
+.switchopt{width:100%;display:flex;align-items:center;gap:14px;padding:15px 16px;background:none;border:none;
+  border-top:1px solid #ece7d6;cursor:pointer;text-align:left;font-family:'Outfit',sans-serif;color:var(--green-deep)}
+.switchopt:first-of-type{border-top:none}
+.switchopt .mark{width:38px;height:38px;flex:0 0 auto}
+.switchopt .mark svg{width:20px;height:20px}
+.switchopt b{display:block;font-size:.95rem;font-weight:600}
+.switchopt small{display:block;color:#8b8770;font-size:.76rem;margin-top:1px}
+.switchopt .dot{width:7px;height:7px;border-radius:50%;background:transparent;margin-left:auto;flex:0 0 auto}
+.switchopt.on .dot{background:var(--gold)}
+.switchopt:active{background:#f0ece0}
+#switcher .cancel{width:100%;margin-top:10px;padding:15px;border:none;border-radius:6px;background:rgba(19,54,31,.94);
+  backdrop-filter:blur(6px);color:var(--cream);font-family:'Outfit',sans-serif;font-weight:600;font-size:.92rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -114,7 +175,64 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
   </div>
 </div>
 
-<div id="shell">
+<!-- ====================== CONNEXION (compte SwingUp Pro, séparé des autres apps) ====================== -->
+<section id="auth" class="hidden">
+  <div class="gatewrap">
+    <div class="gatehead">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+      <h1>SwingUp Pro</h1>
+      <p>Connecte-toi pour retrouver le télémètre et la carte de score</p>
+    </div>
+    <div class="surface gatecard">
+      <div class="auth-tabs">
+        <button type="button" id="tabLogin" class="on">Se connecter</button>
+        <button type="button" id="tabSignup">Créer un compte</button>
+      </div>
+      <div class="autherr hidden" id="authErr"></div>
+      <div class="field">
+        <label>Adresse e-mail</label>
+        <input type="email" id="auEmail" autocomplete="email" inputmode="email">
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="auPass" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" id="auGo">Se connecter</button>
+      <button class="authlink hidden" id="auForgot">Mot de passe oublié ?</button>
+      <div class="authsep">ou</div>
+      <button class="btn btn-google" id="auGoogle">
+        <svg viewBox="0 0 48 48"><path fill="#4285F4" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#34A853" d="M6.3 14.7l6.6 4.8C14.6 15.9 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.7 0-14.3 4.4-17.7 10.7z"/><path fill="#FBBC05" d="M24 44c5.5 0 10.4-1.8 14.3-4.9l-6.6-5.4C29.6 35.6 26.9 36.5 24 36.5c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.7 39.5 16.3 44 24 44z"/><path fill="#EA4335" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.6 5.4C41.4 35.6 44 30.2 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+        Continuer avec Google
+      </button>
+      <p class="footnote">En continuant, tu acceptes les <a href="score/confidentialite.html" target="_blank" rel="noopener">conditions d'utilisation</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ABONNEMENT (obligatoire, pas de version gratuite) ====================== -->
+<section id="paywall" class="hidden">
+  <div class="gatewrap">
+    <div class="gatehead">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+      <h1>SwingUp Pro</h1>
+      <p>Le télémètre et la carte de score, dans une seule appli</p>
+    </div>
+    <div class="surface plan">
+      <span class="trialtag">7 jours offerts</span>
+      <div class="price">4,90&nbsp;€<small>&nbsp;/ mois</small></div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Distances au green, dénivelé et club conseillé (vue satellite)</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Carte de score complète, handicap et historique de tes parties</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Synchronisé sur tous tes appareils, fonctionne hors ligne sur le parcours</li>
+      </ul>
+      <button class="btn btn-primary" id="pwGo">Commencer l'essai gratuit</button>
+      <p class="pnote">Puis 4,90&nbsp;€/mois. Résiliable à tout moment depuis « Gérer mon abonnement ». Aucun prélèvement avant la fin de l'essai.</p>
+      <button class="authlink" id="pwLogout">Se déconnecter</button>
+    </div>
+  </div>
+</section>
+
+<div id="shell" class="hidden">
   <div id="views">
     <div class="view-loading" id="loadTelemetre"><div class="spinner"></div><p>Chargement</p></div>
     <iframe id="frameTelemetre" title="SwingUp Télémètre" allow="geolocation"></iframe>
@@ -123,22 +241,280 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
     <iframe id="frameScore" title="SwingUp Carte de score" class="hidden"></iframe>
   </div>
 
-  <nav id="tabbar">
-    <button type="button" id="btnTelemetre" class="on" data-view="telemetre">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="6" cy="21" r="1.6" fill="currentColor"/><circle cx="14.6" cy="19.4" r="2.5" fill="var(--flag)"/></svg>
-      <span>Télémètre</span>
-      <i class="dot"></i>
-    </button>
-    <button type="button" id="btnScore" data-view="score">
-      <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4" width="17" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 9h10M7 12.5h10M7 16h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <span>Carte de score</span>
-      <i class="dot"></i>
-    </button>
-  </nav>
+  <div class="trialbadge hidden" id="trialBadge">
+    <span id="trialBadgeText">Essai gratuit</span>
+    <button type="button" id="trialBadgeManage">Gérer</button>
+  </div>
 </div>
 
+<!-- ====================== SELECTEUR DE MODULE (ouvert en tapant le logo dans un module) ====================== -->
+<div id="switcher">
+  <div class="surface sheet">
+    <p class="sheethead">Passer à</p>
+    <button type="button" class="switchopt" id="swTelemetre" data-view="telemetre">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+      <span><b>Télémètre</b><small>Distances, dénivelé, club conseillé</small></span>
+      <i class="dot"></i>
+    </button>
+    <button type="button" class="switchopt" id="swScore" data-view="score">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+      <span><b>Carte de score</b><small>Score, handicap, historique</small></span>
+      <i class="dot"></i>
+    </button>
+  </div>
+  <button type="button" class="cancel" id="swCancel">Annuler</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script>
+/* =========================================================================
+   SwingUp Pro — compte et abonnement UNIQUES pour toute l'application.
+   Projet Firebase et compte Stripe PROPRES à SwingUp Pro : sans rapport
+   avec les comptes/abonnements du Télémètre ou de la Carte de score
+   utilisés séparément. Pas de palier gratuit : sans essai actif ni
+   abonnement actif, l'accès au shell (donc aux 2 modules) reste fermé.
+   ========================================================================= */
+
+/* =======================================================================
+   ▼▼▼  A REMPLIR — voir README.md  ▼▼▼
+   ======================================================================= */
+const firebaseConfig = {
+  apiKey: 'A_REMPLIR',
+  authDomain: 'A_REMPLIR',
+  projectId: 'A_REMPLIR',
+  storageBucket: 'A_REMPLIR',
+  messagingSenderId: 'A_REMPLIR',
+  appId: 'A_REMPLIR'
+};
+/* URLs des Cloud Functions déployées (functions/index.js), région europe-west1 :
+   https://europe-west1-<PROJECT_ID>.cloudfunctions.net/<nomDeLaFonction> */
+const CHECKOUT_URL = 'A_REMPLIR';
+const PORTAL_URL = 'A_REMPLIR';
+/* =======================================================================
+   ▲▲▲  FIN A REMPLIR  ▲▲▲
+   ======================================================================= */
+
+let fbReady = false, auth = null, fs = null, currentUser = null, billing = null, unsubBilling = null;
+
+function initFirebase(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    fs = firebase.firestore();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+    try{ fs.settings({ experimentalAutoDetectLongPolling:true, merge:true }); }catch(e){}
+    fbReady = true;
+  }catch(e){ console.error('Firebase non initialisé :', e); }
+}
+initFirebase();
+
+/* ---------- petite aide visuelle ---------- */
+let toastT = null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('on'), 2600);
+}
+function showErr(msg){
+  const el = document.getElementById('authErr');
+  if (!msg){ el.classList.add('hidden'); el.textContent=''; return; }
+  el.textContent = msg; el.classList.remove('hidden');
+}
+function friendlyAuthError(code){
+  const map = {
+    'auth/invalid-email':"Adresse e-mail invalide.",
+    'auth/user-not-found':"Aucun compte avec cette adresse.",
+    'auth/wrong-password':"Mot de passe incorrect.",
+    'auth/invalid-credential':"E-mail ou mot de passe incorrect.",
+    'auth/email-already-in-use':"Un compte existe déjà avec cette adresse.",
+    'auth/weak-password':"Mot de passe trop court (6 caractères minimum).",
+    'auth/popup-closed-by-user':"Connexion annulée.",
+    'auth/network-request-failed':"Connexion réseau impossible."
+  };
+  return map[code] || "Une erreur est survenue. Réessaie.";
+}
+
+/* ---------- écran Connexion ---------- */
+let authMode = 'login';
+const tabLogin = document.getElementById('tabLogin');
+const tabSignup = document.getElementById('tabSignup');
+const auGo = document.getElementById('auGo');
+const auForgot = document.getElementById('auForgot');
+
+function setAuthMode(mode){
+  authMode = mode;
+  tabLogin.classList.toggle('on', mode === 'login');
+  tabSignup.classList.toggle('on', mode === 'signup');
+  auGo.textContent = mode === 'login' ? 'Se connecter' : 'Créer mon compte';
+  auForgot.classList.toggle('hidden', mode !== 'login');
+  showErr(null);
+}
+tabLogin.addEventListener('click', ()=>setAuthMode('login'));
+tabSignup.addEventListener('click', ()=>setAuthMode('signup'));
+
+auGo.addEventListener('click', async ()=>{
+  if (!fbReady){ showErr("Connexion indisponible pour le moment."); return; }
+  const email = document.getElementById('auEmail').value.trim();
+  const pass = document.getElementById('auPass').value;
+  if (!email || !pass){ showErr("Renseigne ton e-mail et ton mot de passe."); return; }
+  showErr(null);
+  auGo.classList.add('loading');
+  try{
+    if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
+    else await auth.createUserWithEmailAndPassword(email, pass);
+  }catch(e){ showErr(friendlyAuthError(e.code)); }
+  auGo.classList.remove('loading');
+});
+
+auForgot.addEventListener('click', async ()=>{
+  const email = document.getElementById('auEmail').value.trim();
+  if (!email){ showErr("Renseigne ton e-mail, puis retape sur ce lien."); return; }
+  try{ await auth.sendPasswordResetEmail(email); toast('E-mail de réinitialisation envoyé.'); }
+  catch(e){ showErr(friendlyAuthError(e.code)); }
+});
+
+document.getElementById('auGoogle').addEventListener('click', async ()=>{
+  if (!fbReady){ showErr("Connexion indisponible pour le moment."); return; }
+  showErr(null);
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try{ await auth.signInWithPopup(provider); }
+  catch(e){
+    if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request'){
+      try{ await auth.signInWithRedirect(provider); return; }catch(e2){}
+    }
+    showErr(friendlyAuthError(e.code));
+  }
+});
+
+/* ---------- écran Abonnement ---------- */
+async function callFn(url, returnUrl){
+  const token = await currentUser.getIdToken();
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json', Authorization:'Bearer '+token},
+    body: JSON.stringify({ returnUrl })
+  });
+  if (!res.ok) throw new Error('http_'+res.status);
+  return res.json();
+}
+
+document.getElementById('pwGo').addEventListener('click', async ()=>{
+  if (CHECKOUT_URL === 'A_REMPLIR'){ toast("Paiement pas encore configuré (voir README)."); return; }
+  const btn = document.getElementById('pwGo');
+  btn.classList.add('loading');
+  try{
+    const data = await callFn(CHECKOUT_URL, location.origin + location.pathname);
+    if (data && data.url) location.href = data.url; else toast('Paiement indisponible.');
+  }catch(e){ toast('Paiement indisponible.'); }
+  btn.classList.remove('loading');
+});
+
+document.getElementById('pwLogout').addEventListener('click', ()=>auth && auth.signOut());
+
+document.getElementById('trialBadgeManage').addEventListener('click', async ()=>{
+  if (PORTAL_URL === 'A_REMPLIR'){ toast("Gestion d'abonnement pas encore configurée."); return; }
+  try{
+    const data = await callFn(PORTAL_URL, location.origin + location.pathname);
+    if (data && data.url) location.href = data.url;
+  }catch(e){ toast('Ouverture du portail impossible.'); }
+});
+
+/* ---------- routage : auth -> abonnement -> shell ---------- */
+function isPremium(){
+  if (!billing || ['active','trialing'].indexOf(billing.status) < 0) return false;
+  if (billing.until && Date.now() > billing.until + 3*864e5) return false; /* 3 jours de grâce, comme les 2 modules */
+  return true;
+}
+
+function showScreen(name){
+  document.getElementById('auth').classList.toggle('hidden', name !== 'auth');
+  document.getElementById('paywall').classList.toggle('hidden', name !== 'paywall');
+  document.getElementById('shell').classList.toggle('hidden', name !== 'shell');
+  if (name !== 'shell') document.getElementById('boot').classList.add('off');
+}
+
+function updateTrialBadge(){
+  const badge = document.getElementById('trialBadge');
+  if (billing && billing.status === 'trialing' && billing.until){
+    const days = Math.max(0, Math.ceil((billing.until - Date.now()) / 864e5));
+    document.getElementById('trialBadgeText').textContent = days <= 1
+      ? "Essai gratuit : dernier jour"
+      : "Essai gratuit : " + days + ' jours restants';
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function listenBilling(uid){
+  if (unsubBilling) unsubBilling();
+  unsubBilling = fs.collection('users').doc(uid).collection('billing').doc('status')
+    .onSnapshot(function(snap){
+      const d = snap.exists ? (snap.data()||{}) : {};
+      billing = { status:d.status||'free', until:d.currentPeriodEnd||null, plan:d.plan||null };
+      route();
+    }, function(err){
+      console.warn('Statut abonnement illisible :', err);
+      if (billing === null) billing = { status:'free', until:null, plan:null };
+      route();
+    });
+}
+
+function route(){
+  if (!fbReady){ return; } /* Firebase mal configuré : on laisse l'écran de démarrage, cf. README */
+  if (!currentUser){
+    billing = null;
+    if (unsubBilling){ unsubBilling(); unsubBilling = null; }
+    showScreen('auth');
+    return;
+  }
+  if (billing === null){ return; } /* premier statut pas encore reçu de Firestore */
+  if (isPremium()){
+    updateTrialBadge();
+    showScreen('shell');
+    startApp();
+  } else {
+    showScreen('paywall');
+  }
+}
+
+if (fbReady){
+  auth.onAuthStateChanged(function(user){
+    currentUser = user;
+    if (user){ billing = null; listenBilling(user.uid); route(); }
+    else { route(); }
+  });
+} else {
+  setTimeout(()=>{ document.getElementById('boot').classList.add('off'); showScreen('auth'); showErr('Connexion indisponible : configuration Firebase manquante (voir README.md).'); }, 1200);
+}
+
+/* Retour depuis Stripe Checkout / portail : message + nettoyage de l'URL */
 (function(){
+  const params = new URLSearchParams(location.search);
+  if (params.get('checkout') === 'success') toast('Merci ! Activation en cours…');
+  else if (params.get('checkout') === 'cancel') toast('Paiement annulé.');
+  if (params.has('checkout')){
+    params.delete('checkout');
+    const clean = location.pathname + (params.toString() ? '?'+params.toString() : '');
+    history.replaceState(null, '', clean);
+  }
+})();
+
+/* =========================================================================
+   Coquille (barre d'onglets + iframes) — démarrée une seule fois,
+   après validation de l'abonnement.
+   ========================================================================= */
+let appStarted = false;
+function startApp(){
+  if (appStarted) return;
+  appStarted = true;
+
   var frames = {
     telemetre: document.getElementById('frameTelemetre'),
     score: document.getElementById('frameScore')
@@ -151,10 +527,7 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
     telemetre: 'telemetre/index.html?embedded=1',
     score: 'score/index.html?embedded=1'
   };
-  var buttons = {
-    telemetre: document.getElementById('btnTelemetre'),
-    score: document.getElementById('btnScore')
-  };
+  var order = ['telemetre', 'score'];
   var current = null;
 
   Object.keys(frames).forEach(function(key){
@@ -169,13 +542,35 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
     Object.keys(frames).forEach(function(key){
       var isOn = key === view;
       frames[key].classList.toggle('hidden', !isOn);
-      buttons[key].classList.toggle('on', isOn);
     });
     current = view;
+    updateSwitcherHighlight();
   }
 
-  buttons.telemetre.addEventListener('click', function(){ activate('telemetre'); });
-  buttons.score.addEventListener('click', function(){ activate('score'); });
+  /* ---------- selecteur de module (ouvert en tapant le logo dans un module) ---------- */
+  var switcherEl = document.getElementById('switcher');
+  var swOpts = { telemetre: document.getElementById('swTelemetre'), score: document.getElementById('swScore') };
+  function updateSwitcherHighlight(){
+    Object.keys(swOpts).forEach(function(key){ swOpts[key].classList.toggle('on', key === current); });
+  }
+  function openSwitcher(){ switcherEl.classList.add('on'); }
+  function closeSwitcher(){ switcherEl.classList.remove('on'); }
+  switcherEl.addEventListener('click', function(e){ if (e.target === switcherEl) closeSwitcher(); });
+  document.getElementById('swCancel').addEventListener('click', closeSwitcher);
+  Object.keys(swOpts).forEach(function(key){
+    swOpts[key].addEventListener('click', function(){ activate(key); closeSwitcher(); });
+  });
+
+  /* ---------- messages venant des modules embarqués (logo tapé / swipe) ---------- */
+  window.addEventListener('message', function(e){
+    if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
+    if (e.data.action === 'open-switcher') openSwitcher();
+    else if (e.data.action === 'swipe'){
+      var idx = order.indexOf(current);
+      var next = e.data.dir === 'left' ? order[(idx + 1) % order.length] : order[(idx - 1 + order.length) % order.length];
+      activate(next);
+    }
+  });
 
   // Vue de depart : ?view=score (raccourci PWA / lien direct) ou Telemetre par defaut
   var wanted = new URLSearchParams(location.search).get('view');
@@ -189,7 +584,7 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
   if ('serviceWorker' in navigator) {
     addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
   }
-})();
+}
 </script>
 </body>
 </html>
