@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SwingUp Pro">
+<meta name="theme-color" content="#1b4332">
+<meta name="description" content="SwingUp Pro : télémètre de golf et carte de score, réunis dans une seule application. Gratuit, fonctionne hors ligne.">
+<title>SwingUp Pro | Télémètre &amp; carte de score golf</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="SwingUp Pro">
+<meta property="og:description" content="Télémètre de golf et carte de score réunis dans une seule application. Gratuit, sans store.">
+<meta property="og:site_name" content="SwingUp Pro">
+<meta property="og:locale" content="fr_FR">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,900;1,900&amp;family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --serif:'Playfair Display',Georgia,serif;
+  --green-deep:#13361f;--green:#1b4332;--green-mid:#2d6a4f;--green-light:#52b788;--green-glow:#74c69d;
+  --sand:#e9e2cf;--cream:#f6f3e9;--ink:#10261a;--flag:#d62828;--gold:#c9a227;
+  --ok:#2d6a4f;--ok-bg:#dff0e5;--bad:#b3261e;--bad-bg:#fbe3e1;
+  --shadow:0 18px 40px -18px rgba(8,30,18,.55);
+  --tabbar-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 600px at 85% -10%, rgba(116,198,157,.30), transparent 60%),radial-gradient(900px 500px at -10% 110%, rgba(45,106,79,.25), transparent 55%),linear-gradient(160deg,#0f2a1a 0%, #16402a 45%, #1b4332 100%);
+  background-attachment:fixed;height:100dvh;min-height:100%;-webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;overflow:hidden}
+.hidden{display:none!important}
+.mark{border-radius:6px;flex:0 0 auto;display:grid;place-items:center;overflow:hidden;
+  background:linear-gradient(145deg,#52b788,#1b4332);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 10px 22px -10px rgba(0,0,0,.6)}
+.mark svg{width:60%;height:60%}
+
+/* ================= ecran de demarrage ================= */
+#boot{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;
+  background:radial-gradient(1200px 600px at 85% -10%, rgba(116,198,157,.30), transparent 60%),
+             radial-gradient(900px 500px at -10% 110%, rgba(45,106,79,.25), transparent 55%),
+             linear-gradient(160deg,#0f2a1a 0%,#16402a 45%,#1b4332 100%);
+  transition:opacity .55s ease,visibility .55s}
+#boot.off{opacity:0;visibility:hidden;pointer-events:none}
+.bootin{text-align:center;padding:0 24px;transform:translateY(-5%)}
+.bootmark{width:98px;height:98px;margin:0 auto 24px;border-radius:24px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#52b788,#1b4332);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 28px 52px -22px rgba(0,0,0,.8);
+  animation:bootpop .65s cubic-bezier(.2,.9,.3,1.25) both}
+.bootmark svg{width:54px;height:54px;overflow:visible}
+.bootmark .pole{stroke-dasharray:60;stroke-dashoffset:60;animation:bootdraw .8s .2s cubic-bezier(.4,0,.2,1) forwards}
+.bootmark .foot{opacity:0;animation:bootfoot .3s .9s ease forwards}
+.bootmark .ball{opacity:0;transform-box:fill-box;transform-origin:center;animation:bootball .6s 1s cubic-bezier(.3,1.5,.5,1) forwards}
+@keyframes bootpop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+@keyframes bootdraw{to{stroke-dashoffset:0}}
+@keyframes bootfoot{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+@keyframes bootball{0%{opacity:0;transform:translateY(-10px) scale(.5)}55%{opacity:1}100%{opacity:1;transform:none}}
+.bootword{font-family:var(--serif);font-weight:900;font-size:2rem;line-height:1;letter-spacing:-.025em;color:var(--cream);
+  opacity:0;animation:rise .55s .45s cubic-bezier(.2,.7,.3,1) forwards}
+.bootword em{font-style:italic;color:var(--green-glow)}
+.boottag{margin-top:10px;font-size:.68rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:rgba(116,198,157,.85);
+  opacity:0;animation:rise .55s .62s cubic-bezier(.2,.7,.3,1) forwards}
+.bootbar{width:96px;height:2px;margin:26px auto 0;border-radius:2px;background:rgba(246,243,233,.14);overflow:hidden}
+.bootbar i{display:block;width:40%;height:100%;border-radius:2px;background:var(--green-glow);animation:bootsweep 1.25s .3s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes bootsweep{from{transform:translateX(-110%)}to{transform:translateX(360%)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ================= coquille app ================= */
+#shell{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
+#views{flex:1 1 auto;min-height:0;position:relative}
+#views iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--green-deep)}
+.view-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:linear-gradient(160deg,#0f2a1a 0%,#16402a 45%,#1b4332 100%);transition:opacity .3s ease,visibility .3s;z-index:2}
+.view-loading.off{opacity:0;visibility:hidden;pointer-events:none}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(246,243,233,.2);border-top-color:var(--green-glow);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.view-loading p{color:rgba(246,243,233,.7);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+
+/* ================= barre d'onglets ================= */
+#tabbar{flex:0 0 auto;display:flex;background:linear-gradient(180deg,var(--cream),#efebdd);
+  box-shadow:0 -18px 40px -18px rgba(8,30,18,.6);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;
+  cursor:pointer;padding:8px 4px 7px;border-radius:6px;color:#8b8770;font-family:'Outfit',sans-serif;
+  transition:color .18s,background .18s}
+#tabbar button svg{width:23px;height:23px}
+#tabbar button span{font-size:.68rem;font-weight:600;letter-spacing:.02em}
+#tabbar button .dot{width:4px;height:4px;border-radius:50%;background:transparent;margin-top:1px;transition:background .18s}
+#tabbar button.on{color:var(--green-deep)}
+#tabbar button.on .dot{background:var(--gold)}
+#tabbar button:active{background:rgba(45,106,79,.08)}
+</style>
+</head>
+<body>
+
+<!-- ====================== ECRAN DE DEMARRAGE ====================== -->
+<div id="boot">
+  <div class="bootin">
+    <div class="bootmark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path class="pole" d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle class="foot" cx="6" cy="21" r="1.6" fill="#f6f3e9"/>
+        <g class="ball"><circle cx="14.6" cy="19.4" r="2.7" fill="#d62828"/><circle cx="13.8" cy="18.6" r=".75" fill="#fff" fill-opacity=".55"/></g>
+      </svg>
+    </div>
+    <h1 class="bootword">Swing<em>Up</em></h1>
+    <p class="boottag">Pro</p>
+    <div class="bootbar"><i></i></div>
+  </div>
+</div>
+
+<div id="shell">
+  <div id="views">
+    <div class="view-loading" id="loadTelemetre"><div class="spinner"></div><p>Chargement</p></div>
+    <iframe id="frameTelemetre" title="SwingUp Télémètre" allow="geolocation"></iframe>
+
+    <div class="view-loading hidden" id="loadScore"><div class="spinner"></div><p>Chargement</p></div>
+    <iframe id="frameScore" title="SwingUp Carte de score" class="hidden"></iframe>
+  </div>
+
+  <nav id="tabbar">
+    <button type="button" id="btnTelemetre" class="on" data-view="telemetre">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="6" cy="21" r="1.6" fill="currentColor"/><circle cx="14.6" cy="19.4" r="2.5" fill="var(--flag)"/></svg>
+      <span>Télémètre</span>
+      <i class="dot"></i>
+    </button>
+    <button type="button" id="btnScore" data-view="score">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4" width="17" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 9h10M7 12.5h10M7 16h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Carte de score</span>
+      <i class="dot"></i>
+    </button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  var frames = {
+    telemetre: document.getElementById('frameTelemetre'),
+    score: document.getElementById('frameScore')
+  };
+  var loaders = {
+    telemetre: document.getElementById('loadTelemetre'),
+    score: document.getElementById('loadScore')
+  };
+  var srcs = {
+    telemetre: 'telemetre/index.html?embedded=1',
+    score: 'score/index.html?embedded=1'
+  };
+  var buttons = {
+    telemetre: document.getElementById('btnTelemetre'),
+    score: document.getElementById('btnScore')
+  };
+  var current = null;
+
+  Object.keys(frames).forEach(function(key){
+    frames[key].addEventListener('load', function(){
+      loaders[key].classList.add('off');
+    });
+  });
+
+  function activate(view){
+    if (view === current && frames[view].src) { return; }
+    if (!frames[view].src) { frames[view].src = srcs[view]; }
+    Object.keys(frames).forEach(function(key){
+      var isOn = key === view;
+      frames[key].classList.toggle('hidden', !isOn);
+      buttons[key].classList.toggle('on', isOn);
+    });
+    current = view;
+  }
+
+  buttons.telemetre.addEventListener('click', function(){ activate('telemetre'); });
+  buttons.score.addEventListener('click', function(){ activate('score'); });
+
+  // Vue de depart : ?view=score (raccourci PWA / lien direct) ou Telemetre par defaut
+  var wanted = new URLSearchParams(location.search).get('view');
+  activate(wanted === 'score' ? 'score' : 'telemetre');
+
+  // Ecran de demarrage : masque une fois le premier module charge (ou apres un delai de securite)
+  function hideBoot(){ document.getElementById('boot').classList.add('off'); }
+  frames[wanted === 'score' ? 'score' : 'telemetre'].addEventListener('load', hideBoot, { once:true });
+  setTimeout(hideBoot, 2600);
+
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  }
+})();
+</script>
+</body>
+</html>
