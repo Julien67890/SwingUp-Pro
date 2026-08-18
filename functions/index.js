@@ -44,7 +44,7 @@ const db = admin.firestore();
    ========================================================================= */
 /* Identifiant du prix Stripe "SwingUp Pro — 4,90€/mois" (Stripe Dashboard
    → Produits → SwingUp Pro → copier l'ID du prix, commence par "price_"). */
-const PRICE_ID = 'A_REMPLIR';
+const PRICE_ID = 'prod_V64AUdm74R67Yt';
 /* Domaine(s) autorisé(s) à appeler ces fonctions (CORS). Mets ici l'URL
    exacte où SwingUp Pro sera servie. */
 const ALLOWED_ORIGINS = [
