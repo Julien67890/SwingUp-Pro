@@ -134,27 +134,10 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 @keyframes spin{to{transform:rotate(360deg)}}
 .view-loading p{color:rgba(246,243,233,.7);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 
-/* ================= bascule modules : logo (dans chaque module) + swipe ================= */
-#switcher{position:fixed;inset:0;z-index:950;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  background:rgba(8,20,13,.55);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s;
-  padding:0 14px calc(14px + env(safe-area-inset-bottom))}
-#switcher.on{opacity:1;visibility:visible}
-#switcher .sheet,#switcher .cancel{width:100%;max-width:420px;transform:translateY(16px);transition:transform .22s cubic-bezier(.2,.8,.3,1)}
-#switcher.on .sheet,#switcher.on .cancel{transform:none}
-#switcher .sheethead{text-align:center;padding:16px 16px 6px;color:rgba(246,243,233,.8);font-size:.68rem;font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase}
-.switchopt{width:100%;display:flex;align-items:center;gap:14px;padding:15px 16px;background:none;border:none;
-  border-top:1px solid #ece7d6;cursor:pointer;text-align:left;font-family:'Outfit',sans-serif;color:var(--green-deep)}
-.switchopt:first-of-type{border-top:none}
-.switchopt .mark{width:38px;height:38px;flex:0 0 auto}
-.switchopt .mark svg{width:20px;height:20px}
-.switchopt b{display:block;font-size:.95rem;font-weight:600}
-.switchopt small{display:block;color:#8b8770;font-size:.76rem;margin-top:1px}
-.switchopt .dot{width:7px;height:7px;border-radius:50%;background:transparent;margin-left:auto;flex:0 0 auto}
-.switchopt.on .dot{background:var(--gold)}
-.switchopt:active{background:#f0ece0}
-#switcher .cancel{width:100%;margin-top:10px;padding:15px;border:none;border-radius:6px;background:rgba(19,54,31,.94);
-  backdrop-filter:blur(6px);color:var(--cream);font-family:'Outfit',sans-serif;font-weight:600;font-size:.92rem;cursor:pointer}
+/* ================= bascule modules : logo (dans chaque module) + swipe =================
+   Le sélecteur (bottom sheet) a été retiré : taper le logo bascule
+   maintenant directement vers l'autre module (voir action "toggle-view"
+   dans le script plus bas). */
 </style>
 </head>
 <body>
@@ -245,24 +228,6 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
     <span id="trialBadgeText">Essai gratuit</span>
     <button type="button" id="trialBadgeManage">Gérer</button>
   </div>
-</div>
-
-<!-- ====================== SELECTEUR DE MODULE (ouvert en tapant le logo dans un module) ====================== -->
-<div id="switcher">
-  <div class="surface sheet">
-    <p class="sheethead">Passer à</p>
-    <button type="button" class="switchopt" id="swTelemetre" data-view="telemetre">
-      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
-      <span><b>Télémètre</b><small>Distances, dénivelé, club conseillé</small></span>
-      <i class="dot"></i>
-    </button>
-    <button type="button" class="switchopt" id="swScore" data-view="score">
-      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
-      <span><b>Carte de score</b><small>Score, handicap, historique</small></span>
-      <i class="dot"></i>
-    </button>
-  </div>
-  <button type="button" class="cancel" id="swCancel">Annuler</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -542,45 +507,45 @@ function startApp(){
   var order = ['telemetre', 'score'];
   var current = null;
 
-  Object.keys(frames).forEach(function(key){
-    frames[key].addEventListener('load', function(){
-      loaders[key].classList.add('off');
-    });
-  });
+  function hideLoader(view){ if (loaders[view]) loaders[view].classList.add('off'); }
+  /* Filet de sécurité : si un module ne prévient jamais qu'il est prêt
+     (ancienne version en cache, message bloqué…), on démasque quand même
+     après un délai plutôt que de rester bloqué sur le spinner. */
+  Object.keys(loaders).forEach(function(view){ setTimeout(function(){ hideLoader(view); }, 4000); });
 
   function activate(view){
-    if (view === current && frames[view].src) { return; }
-    if (!frames[view].src) { frames[view].src = srcs[view]; }
+    var first = !frames[view].src;
+    if (view === current && !first) { return; }
+    if (first) { frames[view].src = srcs[view]; }
     Object.keys(frames).forEach(function(key){
-      var isOn = key === view;
-      frames[key].classList.toggle('hidden', !isOn);
+      frames[key].classList.toggle('hidden', key !== view);
     });
     current = view;
-    updateSwitcherHighlight();
+    if (!first && frames[view].contentWindow){
+      /* Le module tournait déjà en arrière-plan (déjà chargé) : on lui
+         demande de relire son profil, au cas où le prénom (ou autre) ait
+         été modifié entre-temps dans l'autre module. */
+      try{ frames[view].contentWindow.postMessage({ source:'swingup-pro', action:'activated' }, location.origin); }catch(e){}
+    }
   }
 
-  /* ---------- selecteur de module (ouvert en tapant le logo dans un module) ---------- */
-  var switcherEl = document.getElementById('switcher');
-  var swOpts = { telemetre: document.getElementById('swTelemetre'), score: document.getElementById('swScore') };
-  function updateSwitcherHighlight(){
-    Object.keys(swOpts).forEach(function(key){ swOpts[key].classList.toggle('on', key === current); });
-  }
-  function openSwitcher(){ switcherEl.classList.add('on'); }
-  function closeSwitcher(){ switcherEl.classList.remove('on'); }
-  switcherEl.addEventListener('click', function(e){ if (e.target === switcherEl) closeSwitcher(); });
-  document.getElementById('swCancel').addEventListener('click', closeSwitcher);
-  Object.keys(swOpts).forEach(function(key){
-    swOpts[key].addEventListener('click', function(){ activate(key); closeSwitcher(); });
-  });
-
-  /* ---------- messages venant des modules embarqués (logo tapé / swipe) ---------- */
+  /* ---------- messages venant des modules embarqués (logo tapé / swipe / prêt) ---------- */
   window.addEventListener('message', function(e){
     if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
-    if (e.data.action === 'open-switcher') openSwitcher();
-    else if (e.data.action === 'swipe'){
+    if (e.data.action === 'toggle-view'){
+      // Logo tapé : bascule directement vers l'autre module, sans page de choix.
       var idx = order.indexOf(current);
-      var next = e.data.dir === 'left' ? order[(idx + 1) % order.length] : order[(idx - 1 + order.length) % order.length];
+      activate(order[(idx + 1) % order.length]);
+    } else if (e.data.action === 'swipe'){
+      var idx2 = order.indexOf(current);
+      var next = e.data.dir === 'left' ? order[(idx2 + 1) % order.length] : order[(idx2 - 1 + order.length) % order.length];
       activate(next);
+    } else if (e.data.action === 'ready' && e.data.view){
+      // Le module a masqué son propre écran de démarrage interne : on peut
+      // démasquer son spinner de chargement, et l'écran "SwingUp Pro" si
+      // c'est la vue actuellement affichée.
+      hideLoader(e.data.view);
+      if (e.data.view === current) hideBoot();
     }
   });
 
@@ -588,10 +553,31 @@ function startApp(){
   var wanted = new URLSearchParams(location.search).get('view');
   activate(wanted === 'score' ? 'score' : 'telemetre');
 
-  // Ecran de demarrage : masque une fois le premier module charge (ou apres un delai de securite)
+  // Ecran de demarrage : masqué quand le module affiché signale qu'il est
+  // visuellement prêt (message "ready" ci-dessus), ou après un délai de
+  // sécurité si ce signal n'arrive jamais (voir aussi commentaire du flag
+  // BETA_OPEN plus haut pour le contexte général du shell).
   function hideBoot(){ document.getElementById('boot').classList.add('off'); }
-  frames[wanted === 'score' ? 'score' : 'telemetre'].addEventListener('load', hideBoot, { once:true });
   setTimeout(hideBoot, 2600);
+
+  /* ---------- relais du clavier virtuel au module affiché ----------
+     Sur certains navigateurs mobiles (Safari iOS notamment), l'API
+     visualViewport n'est pas fiable *à l'intérieur* d'une iframe quand le
+     clavier s'ouvre. On la mesure donc ici, au niveau de la page
+     top-level (fiable), et on transmet la zone réellement visible au
+     module actuellement affiché, qui l'utilise pour repositionner ses
+     fenêtres modales (ex. renommer un trou) au-dessus du clavier. */
+  function relayViewport(){
+    var vv = window.visualViewport;
+    var msg = { source:'swingup-pro', action:'viewport',
+      height: vv ? vv.height : window.innerHeight, top: vv ? vv.offsetTop : 0 };
+    var f = frames[current];
+    if (f && f.contentWindow){ try{ f.contentWindow.postMessage(msg, location.origin); }catch(e){} }
+  }
+  if (window.visualViewport){
+    visualViewport.addEventListener('resize', relayViewport);
+    visualViewport.addEventListener('scroll', relayViewport);
+  }
 
   if ('serviceWorker' in navigator) {
     addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
