@@ -2165,10 +2165,12 @@ function show(id,pop){
   ['setup','game','recap','stats'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));
   document.body.classList.toggle('lock',id==='game');window.scrollTo(0,0);
   if(pop)return;
+  if(document.documentElement.classList.contains('su-embedded'))return; /* Pro : le bouton retour est géré par le shell (historique partagé avec la page parente) */
   if(id==='setup'){if(guard){guard=false;history.back();}}
   else if(!guard){history.pushState({g:1},'');guard=true;}
 }
 window.addEventListener('popstate',()=>{
+  if(document.documentElement.classList.contains('su-embedded'))return;
   if(!$('#auth').classList.contains('hidden'))return;
   if(!$('#overlay').classList.contains('hidden')){closeModal();history.pushState({g:1},'');return;}
   guard=false;
@@ -2371,7 +2373,7 @@ function openRecap(){
   const done=S.pars.map((_,h)=>S.players.every(p=>typeof p.scores[h]==='number')).filter(Boolean).length;
   $('#rcTitle').textContent=done===S.holes?T('Parcours bouclé'):T('Carte en cours');
   $('#rcMsg').textContent=done===S.holes
-    ? (order.length>1?order[0].p.name+" l'emporte avec "+order[0].t+' coups.':'Total : '+order[0].t+' coups en '+fmt(order[0].d)+'.')
+    ? (order.length>1?(order[1].t===order[0].t?T('Égalité à {t} coups.',{t:order[0].t}):order[0].p.name+" l'emporte avec "+order[0].t+' coups.'):'Total : '+order[0].t+' coups en '+fmt(order[0].d)+'.')
     : T('{a} trous sur {b} saisis pour l\'instant.',{a:done,b:S.holes});
   const r=$('#rank');r.innerHTML='';
   const medals=['#c9a227','#9a9a9a','#a9743f'];
@@ -3875,7 +3877,7 @@ if('serviceWorker' in navigator){
       var on = !!(g && !g.classList.contains('hidden') && typeof S !== 'undefined' && S && S.players && S.players.length);
       var m = { source:'swingup-pro', action:'score-summary', active:on };
       if (on){
-        var p = S.players[Math.min(S.active||0, S.players.length-1)];
+        var p = S.players[0]; /* bandeau : joueur 1 = titulaire du compte */
         var sc = p.scores[S.cur];
         m.hole = S.cur+1; m.par = S.pars[S.cur];
         m.score = (typeof sc === 'number') ? sc : null;
@@ -3889,6 +3891,13 @@ if('serviceWorker' in navigator){
   window.addEventListener('message', function(e){
     if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
     if (e.data.action === 'request-summary'){ last = ''; summary(); }
+    if (e.data.action === 'back'){
+      /* Bouton retour du téléphone, feuille ouverte : on ferme d'abord une fenêtre ouverte. */
+      var ov = document.getElementById('overlay');
+      var handled = !!(ov && !ov.classList.contains('hidden'));
+      if (handled){ try{ closeModal(); }catch(_){ } }
+      parent.postMessage({ source:'swingup-pro', action:'back-result', handled:handled }, location.origin);
+    }
   });
 })();
 </script>

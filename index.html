@@ -605,7 +605,21 @@ function startApp(){
     setTimeout(function(){ if (!sheetOpen) viewsEl.classList.remove('sheet-vis'); }, 300);
     if (!fromPop && history.state && history.state.suSheet){ try{ history.back(); }catch(e){} }
   }
-  window.addEventListener('popstate', function(){ if (sheetOpen) closeSheet(true); });
+  /* Retour du téléphone, feuille ouverte : la Carte de score ferme d'abord une éventuelle
+     fenêtre (réponse « back-result ») ; sinon on ferme la feuille. */
+  var backTimer = null;
+  window.addEventListener('popstate', function(){
+    if (!sheetOpen) return;
+    clearTimeout(backTimer);
+    backTimer = setTimeout(function(){ closeSheet(true); }, 300);
+    try{ frames.score.contentWindow.postMessage({ source:'swingup-pro', action:'back' }, location.origin); }catch(e){}
+  });
+  function onBackResult(handled){
+    clearTimeout(backTimer);
+    if (!sheetOpen) return;
+    if (handled){ try{ history.pushState({ suSheet:1 }, ''); }catch(e){} }
+    else closeSheet(true);
+  }
   window.addEventListener('resize', function(){ if (!sheetOpen && current === 'telemetre') setY(sheetH() + 12, false); });
 
   /* glissé : pointer events + capture (l'iframe ne reçoit rien sur le bandeau / l'entête) */
@@ -661,14 +675,13 @@ function startApp(){
   /* ---------- messages venant des modules embarqués (logo tapé / swipe / prêt) ---------- */
   window.addEventListener('message', function(e){
     if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
-    if (e.data.action === 'toggle-view'){
-      // Logo tapé : bascule directement vers l'autre module, sans page de choix.
-      var idx = order.indexOf(current);
-      activate(order[(idx + 1) % order.length]);
-    } else if (e.data.action === 'swipe'){
-      var idx2 = order.indexOf(current);
-      var next = e.data.dir === 'left' ? order[(idx2 + 1) % order.length] : order[(idx2 - 1 + order.length) % order.length];
-      activate(next);
+    if (e.data.action === 'toggle-view' || e.data.action === 'swipe'){
+      // Depuis v5 la Carte de score n'existe plus qu'en feuille sous le télémètre :
+      // logo / glissé de bord ouvrent ou ferment la feuille au lieu de changer de vue.
+      if (e.data.action === 'swipe' && e.data.dir !== 'left'){ if (sheetOpen) closeSheet(); return; }
+      if (sheetOpen) closeSheet(); else openSheet();
+    } else if (e.data.action === 'back-result'){
+      onBackResult(!!e.data.handled);
     } else if (e.data.action === 'score-summary'){
       updatePeek(e.data);
     } else if (e.data.action === 'ready' && e.data.view){
@@ -682,7 +695,8 @@ function startApp(){
 
   // Vue de depart : ?view=score (raccourci PWA / lien direct) ou Telemetre par defaut
   var wanted = new URLSearchParams(location.search).get('view');
-  activate(wanted === 'score' ? 'score' : 'telemetre');
+  activate('telemetre');
+  if (wanted === 'score') setTimeout(function(){ openSheet(); }, 600); /* raccourci PWA « Carte de score » */
 
   // Ecran de demarrage : masqué quand le module affiché signale qu'il est
   // visuellement prêt (message "ready" ci-dessus), ou après un délai de
