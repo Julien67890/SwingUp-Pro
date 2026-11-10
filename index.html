@@ -148,7 +148,7 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 #peek .pl b{font-size:.95rem;font-weight:600;color:var(--cream);display:flex;align-items:center;gap:8px;white-space:nowrap}
 #peekBadge{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:7px;background:var(--green-glow);color:var(--green-deep);font-weight:800;font-size:.9rem}
 #peek .pr{flex:0 0 auto;padding-left:12px;border-left:1px solid rgba(246,243,233,.18);font-size:.8rem;color:rgba(246,243,233,.8);white-space:nowrap}
-#views.has-peek #frameTelemetre{bottom:var(--peek-h);height:auto}
+#views.has-peek #frameTelemetre{bottom:auto;height:calc(100% - var(--peek-h))}
 #sheetBack{position:absolute;inset:0;z-index:4;background:rgba(0,0,0,.5);opacity:0;pointer-events:none}
 #sheetBack.on{pointer-events:auto}
 #sheetHead{position:absolute;left:0;right:0;bottom:calc(88% - 44px);height:44px;z-index:6;background:rgba(14,38,24,.99);
