@@ -2489,7 +2489,7 @@ $('#btnSaveRound').onclick=()=>{if(ownerComplete())startSave();else askIncomplet
 
 /* ---------- statistiques ---------- */
 $('#statsCard').onclick=()=>openStats();
-$('#btnStatsBack').onclick=()=>{refreshResume();show('setup');};
+$('#btnStatsBack').onclick=()=>{if(window.__suStatsFromGame&&S&&S.players){window.__suStatsFromGame=false;openGame();return;}refreshResume();show('setup');};
 
 function allRounds(){
   const out=[];
@@ -3891,6 +3891,14 @@ if('serviceWorker' in navigator){
   window.addEventListener('message', function(e){
     if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
     if (e.data.action === 'request-summary'){ last = ''; summary(); }
+    if (e.data.action === 'open-stats'){
+      /* Bouton « Stats » de l'en-tête de la feuille. La partie en cours reste
+         enregistrée (S), on la retrouve via « Reprendre la partie » ou le retour des stats. */
+      var g = document.getElementById('game');
+      window.__suStatsFromGame = !!(g && !g.classList.contains('hidden'));
+      try{ if (typeof closeModal === 'function') closeModal(); openStats(); }catch(_){ }
+      return;
+    }
     if (e.data.action === 'back'){
       /* Bouton retour du téléphone, feuille ouverte : on ferme d'abord une fenêtre ouverte. */
       var ov = document.getElementById('overlay');

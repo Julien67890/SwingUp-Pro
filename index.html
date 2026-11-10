@@ -148,6 +148,9 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
   border-radius:20px 20px 0 0;touch-action:none;padding:8px 14px 0;color:var(--cream);display:none}
 #sheetHead .t{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-weight:600;font-size:.95rem}
 #sheetHead button{background:none;border:0;color:var(--cream);font-size:1.5rem;line-height:1;padding:0 6px;cursor:pointer}
+#sheetHead .sh-actions{display:flex;align-items:center;gap:10px}
+#sheetStats{display:flex;align-items:center;gap:5px;font:600 .8rem Outfit,sans-serif!important;color:var(--green-glow)!important;border:1px solid rgba(116,198,157,.35)!important;border-radius:999px;padding:4px 10px!important}
+#sheetStats small{font-size:.78rem}
 #views.has-peek #sheetHead{display:block}
 #views.has-peek #frameScore{inset:auto 0 0 0;height:calc(88% - 44px);z-index:5;visibility:hidden}
 #views.has-peek.sheet-vis #frameScore{visibility:visible}
@@ -247,7 +250,7 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
       </div>
     </div>
     <div id="sheetBack"></div>
-    <div id="sheetHead"><div class="grip"></div><div class="t"><span>Carte de score</span><button type="button" id="sheetClose" aria-label="Fermer">&times;</button></div></div>
+    <div id="sheetHead"><div class="grip"></div><div class="t"><span>Carte de score</span><span class="sh-actions"><button type="button" id="sheetStats" aria-label="Statistiques"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><small>Stats</small></button><button type="button" id="sheetClose" aria-label="Fermer">&times;</button></span></div></div>
   </div>
 
   <div class="trialbadge hidden" id="trialBadge">
@@ -655,6 +658,9 @@ function startApp(){
   }
   drag(peekEl, 'peek'); drag(headEl, 'head');
   document.getElementById('sheetClose').addEventListener('click', function(){ closeSheet(); });
+  document.getElementById('sheetStats').addEventListener('click', function(){
+    try{ frames.score.contentWindow.postMessage({ source:'swingup-pro', action:'open-stats' }, location.origin); }catch(e){}
+  });
   backEl.addEventListener('click', function(){ closeSheet(); });
   peekEl.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') openSheet(); });
 
