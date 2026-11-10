@@ -1534,7 +1534,7 @@ function ecranPremium(origine){
 const feat=(t,s)=>'<div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><div><b>'+esc(t)+'</b><span>'+esc(s)+'</span></div></div>';
 
 /* ---------- dialogues et notifications ---------- */
-function openModal(html){const o=$id('overlay');o.innerHTML='<div class="modal">'+html+'</div>';fitModals();o.classList.remove('hidden');setTimeout(fitModals,120);}
+function openModal(html){const o=$id('overlay');o.innerHTML='<div class="modal">'+html+'</div>';if(typeof fitModals==='function')fitModals();o.classList.remove('hidden');setTimeout(function(){if(typeof fitModals==='function')fitModals();},120);} /* Pro : fitModals est défini dans un script plus bas, un modal peut s'ouvrir avant */
 function closeModal(){const o=$id('overlay');o.classList.add('hidden');o.innerHTML='';}
 let toastT=null;
 function toast(m){const t=$id('toast');t.textContent=m;t.classList.add('show');
