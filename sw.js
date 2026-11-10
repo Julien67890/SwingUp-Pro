@@ -8,7 +8,7 @@
    celui-ci pour tout ce qui se passe dans /telemetre/ et /score/.
    Incrémenter CACHE_VERSION à chaque mise en ligne.
    ========================================================= */
-const CACHE_VERSION = 'swinguppro-shell-v3';
+const CACHE_VERSION = 'swinguppro-shell-v4';
 
 const APP_SHELL = [
   './',
@@ -20,12 +20,12 @@ const APP_SHELL = [
   './icons/icon-64.png',
   './icons/icon-120.png',
   './icons/icon-180.png',
+  './icons/apple-touch-icon-180.png',
   './icons/icon-192.png',
   './icons/icon-256.png',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
-  './icons/icon.svg'
 ];
 
 const RUNTIME_HOSTS = [

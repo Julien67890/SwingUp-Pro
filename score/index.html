@@ -486,6 +486,53 @@ html.su-embedded body.lock .app{padding-bottom:6px!important}
 html.su-embedded .auth-wrap{padding-top:24px!important;padding-bottom:24px!important}
 html.su-embedded .toast{bottom:24px!important}
 html.su-embedded .consent{bottom:12px!important}
+/* ---- SwingUp Pro : la carte de score vit dans une feuille (bottom sheet) sous le télémètre ----
+   Le compte, la marque et la bêta sont déjà gérés par le shell et le télémètre ; on retire
+   aussi les blocs de texte et le bandeau de synthèse pour tout faire tenir à l'écran. */
+html.su-embedded #setup>header{display:none!important}
+html.su-embedded .hero h2,html.su-embedded .hero p.sub{display:none!important}
+html.su-embedded .hero{padding:14px 20px 2px}
+html.su-embedded #setup>.footnote{display:none}
+html.su-embedded #game>*{flex-shrink:0}
+html.su-embedded .app{min-height:0;padding-top:0;padding-bottom:10px!important}
+html.su-embedded #setup{padding-top:10px}
+html.su-embedded .sumstrip{display:none!important}
+html.su-embedded .topbar{padding:6px 20px 6px!important;gap:10px}
+html.su-embedded #game .card-main{margin-top:4px}
+html.su-embedded table.score th,html.su-embedded table.score td{height:34px}
+html.su-embedded .playzone{margin-top:6px;padding:8px 0 6px}
+html.su-embedded .holehead{padding-bottom:6px}
+html.su-embedded .pcard{padding-top:6px}
+html.su-embedded .ptabs{padding-top:6px;padding-bottom:2px}
+html.su-embedded .holenav{padding-top:6px;margin-top:4px}
+html.su-embedded .holenav button{padding:8px}
+html.su-embedded .section{padding:0 16px}
+html.su-embedded .flabel{margin:10px 0 5px}
+html.su-embedded .stepper{padding:4px}
+html.su-embedded .stepper .rnd{width:38px;height:38px}
+html.su-embedded .stepper .val{font-size:1.2rem}
+html.su-embedded .names{gap:6px}
+html.su-embedded .action{padding:12px 16px 14px}
+html.su-embedded .hero .badge{margin-bottom:0}
+@media (max-height:640px){
+  html.su-embedded table.score th,html.su-embedded table.score td{height:28px}
+  html.su-embedded .topbar{padding:4px 20px!important}
+  html.su-embedded .topbar .iconbtn{width:36px;height:36px}
+  html.su-embedded .holehead .hn{font-size:1.15rem}
+  html.su-embedded .holehead .hn small{margin-bottom:1px}
+  html.su-embedded .parbox button{width:30px;height:30px}
+  html.su-embedded .counter{grid-template-columns:46px 1fr 46px;margin:4px 0 0}
+  html.su-embedded .big{width:46px;height:46px}
+  html.su-embedded .strokes .num{font-size:2.2rem}
+  html.su-embedded .strokes .tag{margin-top:2px;padding:2px 8px}
+  html.su-embedded .pname{margin-bottom:0}
+  html.su-embedded .quick{margin-top:6px}
+  html.su-embedded .quick button{padding:4px 2px}
+  html.su-embedded .holenav button{padding:6px}
+}
+html.su-embedded .nrow{padding:3px 10px}
+html.su-embedded .nrow input{padding:4px 0}
+html.su-embedded .pickfield{padding:10px 12px}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
