@@ -3,7 +3,7 @@
    Incrémente CACHE_VERSION à chaque mise en ligne
    pour forcer le rafraîchissement chez les utilisateurs.
    ========================================================= */
-const CACHE_VERSION = 'swinguppro-v36';
+const CACHE_VERSION = 'swinguppro-v39';
 
 /* Fichiers de l'application, mis en cache à l'installation */
 const APP_SHELL = [
@@ -14,7 +14,8 @@ const APP_SHELL = [
   './privacy.html',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/icon-180.png'
+  './icons/icon-180.png',
+  './icons/apple-touch-icon.png'
 ];
 
 /* Domaines externes : mis en cache à l'usage, jamais bloquants */

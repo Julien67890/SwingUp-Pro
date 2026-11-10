@@ -10,9 +10,8 @@
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SwingUp">
 
@@ -43,8 +42,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opa
 
 /* ---------- en-têtes ---------- */
 header{padding:calc(20px + env(safe-area-inset-top)) 4px 14px;display:flex;align-items:center;gap:12px}
-.mark{width:46px;height:46px;border-radius:6px;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(145deg,#52b788,#1b4332);box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 10px 22px -10px rgba(0,0,0,.6)}
-.mark svg{width:26px;height:26px}
+.mark{width:46px;height:46px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;box-shadow:0 10px 22px -10px rgba(0,0,0,.6)}
+.mark img{width:100%;height:100%;border-radius:50%;display:block}
 .brand h1{font-family:var(--serif);font-weight:900;color:var(--cream);font-size:1.32rem;line-height:1;letter-spacing:-.01em}
 .brand p{color:var(--green-glow);font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;margin-top:5px}
 .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;margin:0 -16px;padding:calc(14px + env(safe-area-inset-top)) 20px 12px;
@@ -330,8 +329,7 @@ thead .col-now{background:#dcecdf!important;color:var(--green-deep)!important}
 /* ---------- authentification ---------- */
 .auth-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 4px calc(24px + env(safe-area-inset-bottom));min-height:100dvh}
 .auth-head{text-align:center;margin-bottom:22px}
-.auth-head .mark{width:60px;height:60px;margin:0 auto 16px;border-radius:8px}
-.auth-head .mark svg{width:34px;height:34px}
+.auth-head .mark{width:72px;height:72px;margin:0 auto 16px;border-radius:50%}
 .auth-head h1{font-family:var(--serif);font-weight:900;color:var(--cream);font-size:1.7rem;line-height:1.05;letter-spacing:-.02em}
 .auth-head p{color:var(--green-glow);font-size:.82rem;margin-top:8px}
 .auth-card{padding:24px 22px 22px}
@@ -432,18 +430,11 @@ thead .col-now{background:#dcecdf!important;color:var(--green-deep)!important}
   transition:opacity .55s ease,visibility .55s}
 #boot.off{opacity:0;visibility:hidden;pointer-events:none}
 .bootin{text-align:center;padding:0 24px;transform:translateY(-5%)}
-.bootmark{width:98px;height:98px;margin:0 auto 24px;border-radius:24px;display:grid;place-items:center;
-  background:linear-gradient(145deg,#52b788,#1b4332);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 28px 52px -22px rgba(0,0,0,.8);
+.bootmark{width:124px;height:124px;margin:0 auto 24px;border-radius:50%;
+  box-shadow:0 28px 52px -22px rgba(0,0,0,.8);
   animation:bootpop .65s cubic-bezier(.2,.9,.3,1.25) both}
-.bootmark svg{width:54px;height:54px;overflow:visible}
-.bootmark .pole{stroke-dasharray:60;stroke-dashoffset:60;animation:bootdraw .8s .2s cubic-bezier(.4,0,.2,1) forwards}
-.bootmark .foot{opacity:0;animation:bootfoot .3s .9s ease forwards}
-.bootmark .ball{opacity:0;transform-box:fill-box;transform-origin:center;animation:bootball .6s 1s cubic-bezier(.3,1.5,.5,1) forwards}
+.bootmark img{width:100%;height:100%;border-radius:50%;display:block}
 @keyframes bootpop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
-@keyframes bootdraw{to{stroke-dashoffset:0}}
-@keyframes bootfoot{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
-@keyframes bootball{0%{opacity:0;transform:translateY(-10px) scale(.5)}55%{opacity:1}100%{opacity:1;transform:none}}
 .bootword{font-family:var(--serif);font-weight:900;font-size:2rem;line-height:1;letter-spacing:-.025em;color:var(--cream);
   opacity:0;animation:rise .55s .45s cubic-bezier(.2,.7,.3,1) forwards}
 .bootword em{font-style:italic;color:var(--green-glow)}
@@ -505,13 +496,7 @@ html.su-embedded .consent{bottom:12px!important}
 <!-- ====================== ECRAN DE DEMARRAGE ====================== -->
 <div id="boot">
   <div class="bootin">
-    <div class="bootmark">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path class="pole" d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-        <circle class="foot" cx="6" cy="21" r="1.6" fill="#f6f3e9"/>
-        <g class="ball"><circle cx="14.6" cy="19.4" r="2.7" fill="#d62828"/><circle cx="13.8" cy="18.6" r=".75" fill="#fff" fill-opacity=".55"/></g>
-      </svg>
-    </div>
+    <div class="bootmark"><img src="icons/icon-192.png" width="124" height="124" alt=""></div>
     <h1 class="bootword">Swing<em>Up</em></h1>
     <p class="boottag">Carte de score</p>
     <div class="bootbar"><i></i></div>
@@ -524,7 +509,7 @@ html.su-embedded .consent{bottom:12px!important}
 <section id="auth">
   <div class="auth-wrap">
     <div class="auth-head">
-      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+      <div class="mark"><img src="icons/icon-192.png" width="46" height="46" alt=""></div>
       <h1>Carte de score</h1>
       <p id="authTagline">Connecte-toi pour retrouver tes parties</p>
     </div>
@@ -563,7 +548,7 @@ html.su-embedded .consent{bottom:12px!important}
 <!-- ====================== ECRAN 1 : NOUVELLE PARTIE ====================== -->
 <section id="setup" class="hidden">
   <header>
-    <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3l11 4-11 4" stroke="#f6f3e9" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="21" r="1.6" fill="#f6f3e9"/><circle cx="14" cy="19" r="2.6" fill="#d62828"/></svg></div>
+    <div class="mark"><img src="icons/icon-192.png" width="46" height="46" alt=""></div>
     <div class="brand"><h1>Carte de score</h1><p id="brandSub">Parcours en cours</p></div><span class="betapill hidden" id="betaPill">Bêta</span>
     <button class="acctbtn" id="btnAccount" aria-label="Mon compte"><span class="who" id="acctName">—</span><span class="av" id="acctAv">?</span></button>
   </header>
@@ -3828,6 +3813,35 @@ if('serviceWorker' in navigator){
       __suViewport = { height: e.data.height, top: e.data.top };
       if (typeof fitModals === 'function') fitModals();
     }
+  });
+})();
+</script>
+<script>
+/* SwingUp Pro — résumé de la partie envoyé au shell (bandeau « Carte de score »
+   affiché en bas du télémètre). Sans effet hors du shell. */
+(function(){
+  if (!document.documentElement.classList.contains('su-embedded')) return;
+  var last = '';
+  function summary(){
+    try{
+      var g = document.getElementById('game');
+      var on = !!(g && !g.classList.contains('hidden') && typeof S !== 'undefined' && S && S.players && S.players.length);
+      var m = { source:'swingup-pro', action:'score-summary', active:on };
+      if (on){
+        var p = S.players[Math.min(S.active||0, S.players.length-1)];
+        var sc = p.scores[S.cur];
+        m.hole = S.cur+1; m.par = S.pars[S.cur];
+        m.score = (typeof sc === 'number') ? sc : null;
+        m.total = played(p); m.vsPar = vsPar(p); m.holes = S.holes;
+      }
+      var j = JSON.stringify(m);
+      if (j !== last){ last = j; parent.postMessage(m, location.origin); }
+    }catch(e){}
+  }
+  setInterval(summary, 600);
+  window.addEventListener('message', function(e){
+    if (e.origin !== location.origin || !e.data || e.data.source !== 'swingup-pro') return;
+    if (e.data.action === 'request-summary'){ last = ''; summary(); }
   });
 })();
 </script>

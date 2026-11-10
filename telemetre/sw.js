@@ -4,7 +4,7 @@
    la carte de score, même si les deux sont sur le même domaine.
    Incrémenter CACHE_VERSION à chaque mise en ligne.
    ========================================================= */
-const CACHE_VERSION = 'swingup-telemetre-v9';
+const CACHE_VERSION = 'swingup-telemetre-v40';
 
 /* Cache des tuiles d'imagerie : nom FIXE, volontairement en dehors de
    CACHE_VERSION, pour survivre aux mises à jour de l'appli (sinon chaque
@@ -18,15 +18,16 @@ const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './confidentialite.html',
-  './privacy.html',
   './favicon.ico',
   './fr-poly.js',
   './leaflet/leaflet.js',
   './leaflet/leaflet.css',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/icon-180.png'
+  './icons/icon-180.png',
+  './icons/apple-touch-icon-180.png',
+  './icons/icon-maskable-192.png',
+  './icons/icon-maskable-512.png'
 ];
 
 /* Domaines externes mis en cache à l'usage, jamais bloquants. */
@@ -130,6 +131,9 @@ self.addEventListener('fetch', event => {
 
   /* Navigation : réseau d'abord, cache en secours. */
   if (req.mode === 'navigate') {
+    /* La page de test ne passe jamais par le cache : sinon elle serait
+       enregistrée sous ./index.html et servie à l'app hors ligne. */
+    if (url.pathname.endsWith('/beta.html')) return;
     event.respondWith(
       fetch(req)
         .then(res => {

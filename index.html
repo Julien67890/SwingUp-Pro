@@ -134,6 +134,33 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 @keyframes spin{to{transform:rotate(360deg)}}
 .view-loading p{color:rgba(246,243,233,.7);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 
+
+/* ================= carte de score en bottom sheet (par-dessus le télémètre) ================= */
+:root{--peek-h:calc(64px + env(safe-area-inset-bottom))}
+#peek{position:absolute;left:0;right:0;bottom:0;height:var(--peek-h);z-index:3;padding:6px 14px env(safe-area-inset-bottom);
+  background:rgba(14,38,24,.97);border-top:1px solid rgba(116,198,157,.22);border-radius:18px 18px 0 0;
+  touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+#peek .grip,#sheetHead .grip{width:38px;height:4px;border-radius:2px;background:rgba(246,243,233,.35);margin:0 auto}
+#peek .prow{display:flex;align-items:center;gap:12px;height:44px;margin-top:6px}
+#peek svg{flex:0 0 auto}
+#peek .pl{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+#peek .pl small{font-size:.62rem;letter-spacing:.14em;font-weight:700;color:rgba(246,243,233,.6)}
+#peek .pl b{font-size:.95rem;font-weight:600;color:var(--cream);display:flex;align-items:center;gap:8px;white-space:nowrap}
+#peekBadge{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:7px;background:var(--green-glow);color:var(--green-deep);font-weight:800;font-size:.9rem}
+#peek .pr{flex:0 0 auto;padding-left:12px;border-left:1px solid rgba(246,243,233,.18);font-size:.8rem;color:rgba(246,243,233,.8);white-space:nowrap}
+#views.has-peek #frameTelemetre{bottom:var(--peek-h);height:auto}
+#sheetBack{position:absolute;inset:0;z-index:4;background:rgba(0,0,0,.5);opacity:0;pointer-events:none}
+#sheetBack.on{pointer-events:auto}
+#sheetHead{position:absolute;left:0;right:0;bottom:calc(88% - 44px);height:44px;z-index:6;background:rgba(14,38,24,.99);
+  border-radius:20px 20px 0 0;touch-action:none;padding:8px 14px 0;color:var(--cream);display:none}
+#sheetHead .t{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-weight:600;font-size:.95rem}
+#sheetHead button{background:none;border:0;color:var(--cream);font-size:1.5rem;line-height:1;padding:0 6px;cursor:pointer}
+#views.has-peek #sheetHead{display:block}
+#views.has-peek #frameScore{inset:auto 0 0 0;height:calc(88% - 44px);z-index:5;visibility:hidden}
+#views.has-peek.sheet-vis #frameScore{visibility:visible}
+#sheetHead,#views.has-peek #frameScore,#sheetBack{will-change:transform,opacity}
+.sheet-anim{transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s}
+
 /* ================= bascule modules : logo (dans chaque module) + swipe =================
    Le sélecteur (bottom sheet) a été retiré : taper le logo bascule
    maintenant directement vers l'autre module (voir action "toggle-view"
@@ -222,6 +249,18 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 
     <div class="view-loading hidden" id="loadScore"><div class="spinner"></div><p>Chargement</p></div>
     <iframe id="frameScore" title="SwingUp Carte de score" class="hidden"></iframe>
+
+    <div id="peek" class="hidden" role="button" aria-label="Ouvrir la carte de score">
+      <div class="grip"></div>
+      <div class="prow">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f6f3e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+        <div class="pl"><small>CARTE DE SCORE</small><b><span id="peekHole">Démarrer une partie</span><span id="peekBadge" class="hidden"></span></b></div>
+        <div class="pr hidden" id="peekTotal"></div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f6f3e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+      </div>
+    </div>
+    <div id="sheetBack"></div>
+    <div id="sheetHead"><div class="grip"></div><div class="t"><span>Carte de score</span><button type="button" id="sheetClose" aria-label="Fermer">&times;</button></div></div>
   </div>
 
   <div class="trialbadge hidden" id="trialBadge">
@@ -506,6 +545,7 @@ function startApp(){
   };
   var order = ['telemetre', 'score'];
   var current = null;
+  var sheetOpen = false;
 
   function hideLoader(view){ if (loaders[view]) loaders[view].classList.add('off'); }
   /* Filet de sécurité : si un module ne prévient jamais qu'il est prêt
@@ -521,12 +561,114 @@ function startApp(){
       frames[key].classList.toggle('hidden', key !== view);
     });
     current = view;
+    applyLayout();
     if (!first && frames[view].contentWindow){
       /* Le module tournait déjà en arrière-plan (déjà chargé) : on lui
          demande de relire son profil, au cas où le prénom (ou autre) ait
          été modifié entre-temps dans l'autre module. */
       try{ frames[view].contentWindow.postMessage({ source:'swingup-pro', action:'activated' }, location.origin); }catch(e){}
     }
+  }
+
+
+  /* ---------- carte de score en bottom sheet ----------
+     Sur la vue Télémètre, la Carte de score est le même iframe que plein écran,
+     simplement posé en bas, hors écran : un bandeau (« peek ») le résume et un
+     glissé vers le haut (ou un tap) fait monter la feuille. */
+  var viewsEl = document.getElementById('views');
+  var peekEl = document.getElementById('peek');
+  var headEl = document.getElementById('sheetHead');
+  var backEl = document.getElementById('sheetBack');
+  function sheetH(){ return viewsEl.clientHeight * 0.88; }
+  function setY(px, anim){
+    var els = [headEl, frames.score, backEl];
+    els.forEach(function(el){ el.classList.toggle('sheet-anim', !!anim); });
+    headEl.style.transform = frames.score.style.transform = 'translateY(' + px + 'px)';
+    backEl.style.opacity = String(Math.max(0, Math.min(1, 1 - px / sheetH())));
+  }
+  function applyLayout(){
+    var sheetMode = current === 'telemetre';
+    viewsEl.classList.toggle('has-peek', sheetMode);
+    peekEl.classList.toggle('hidden', !sheetMode);
+    if (sheetMode){
+      frames.score.classList.remove('hidden');
+      if (!frames.score.src) frames.score.src = srcs.score; /* préchargé pour alimenter le bandeau */
+      if (!sheetOpen){ setY(sheetH() + 12, false); viewsEl.classList.remove('sheet-vis'); }
+    } else {
+      sheetOpen = false; viewsEl.classList.remove('sheet-vis');
+      headEl.style.transform = frames.score.style.transform = '';
+      backEl.classList.remove('on'); backEl.style.opacity = '0';
+    }
+  }
+  function openSheet(fromPop){
+    if (sheetOpen || current !== 'telemetre') return;
+    sheetOpen = true;
+    viewsEl.classList.add('sheet-vis'); backEl.classList.add('on');
+    setY(0, true);
+    if (!fromPop){ try{ history.pushState({ suSheet:1 }, ''); }catch(e){} }
+    try{ frames.score.contentWindow.postMessage({ source:'swingup-pro', action:'activated' }, location.origin); }catch(e){}
+    setTimeout(relayViewport, 320);
+  }
+  function closeSheet(fromPop){
+    if (!sheetOpen) return;
+    sheetOpen = false; backEl.classList.remove('on');
+    try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+    try{ frames.score.blur(); }catch(e){}
+    setY(sheetH() + 12, true);
+    setTimeout(function(){ if (!sheetOpen) viewsEl.classList.remove('sheet-vis'); }, 300);
+    if (!fromPop && history.state && history.state.suSheet){ try{ history.back(); }catch(e){} }
+  }
+  window.addEventListener('popstate', function(){ if (sheetOpen) closeSheet(true); });
+  window.addEventListener('resize', function(){ if (!sheetOpen && current === 'telemetre') setY(sheetH() + 12, false); });
+
+  /* glissé : pointer events + capture (l'iframe ne reçoit rien sur le bandeau / l'entête) */
+  function drag(el, mode){
+    var y0 = 0, dy = 0, t0 = 0, on = false;
+    el.addEventListener('pointerdown', function(e){
+      if (e.target.closest && e.target.closest('button')) return;
+      on = true; y0 = e.clientY; dy = 0; t0 = Date.now();
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    el.addEventListener('pointermove', function(e){
+      if (!on) return;
+      dy = e.clientY - y0;
+      if (mode === 'peek' && dy < -6){
+        viewsEl.classList.add('sheet-vis'); backEl.classList.add('on');
+        setY(Math.max(0, sheetH() + 12 + dy), false);
+      } else if (mode === 'head' && dy > 0){
+        setY(dy, false);
+      }
+    });
+    function end(){
+      if (!on) return; on = false;
+      var fast = Math.abs(dy) / Math.max(1, Date.now() - t0) > 0.5;
+      if (mode === 'peek'){
+        if (Math.abs(dy) < 8 || dy < -70 || (fast && dy < -20)){ sheetOpen = false; openSheet(); }
+        else { sheetOpen = false; backEl.classList.remove('on'); setY(sheetH() + 12, true); setTimeout(function(){ viewsEl.classList.remove('sheet-vis'); }, 300); }
+      } else {
+        if (dy > 90 || (fast && dy > 25)) closeSheet(); else setY(0, true);
+      }
+    }
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+  }
+  drag(peekEl, 'peek'); drag(headEl, 'head');
+  document.getElementById('sheetClose').addEventListener('click', function(){ closeSheet(); });
+  backEl.addEventListener('click', function(){ closeSheet(); });
+  peekEl.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') openSheet(); });
+
+  /* bandeau : résumé envoyé par la Carte de score */
+  function updatePeek(m){
+    var hole = document.getElementById('peekHole'), badge = document.getElementById('peekBadge'), tot = document.getElementById('peekTotal');
+    if (!m.active){
+      hole.textContent = 'Démarrer une partie'; badge.classList.add('hidden'); tot.classList.add('hidden'); return;
+    }
+    hole.textContent = 'Trou ' + m.hole;
+    badge.textContent = (m.score === null || m.score === undefined) ? '–' : m.score;
+    badge.classList.remove('hidden');
+    var vs = m.vsPar > 0 ? '+' + m.vsPar : (m.vsPar === 0 ? 'PAR' : String(m.vsPar));
+    tot.textContent = 'Total ' + vs + ' · ' + m.total + ' coup' + (m.total > 1 ? 's' : '');
+    tot.classList.remove('hidden');
   }
 
   /* ---------- messages venant des modules embarqués (logo tapé / swipe / prêt) ---------- */
@@ -540,6 +682,8 @@ function startApp(){
       var idx2 = order.indexOf(current);
       var next = e.data.dir === 'left' ? order[(idx2 + 1) % order.length] : order[(idx2 - 1 + order.length) % order.length];
       activate(next);
+    } else if (e.data.action === 'score-summary'){
+      updatePeek(e.data);
     } else if (e.data.action === 'ready' && e.data.view){
       // Le module a masqué son propre écran de démarrage interne : on peut
       // démasquer son spinner de chargement, et l'écran "SwingUp Pro" si
@@ -572,6 +716,15 @@ function startApp(){
     var msg = { source:'swingup-pro', action:'viewport',
       height: vv ? vv.height : window.innerHeight, top: vv ? vv.offsetTop : 0 };
     var f = frames[current];
+    if (sheetOpen){
+      /* Feuille ouverte : c'est la Carte de score qui reçoit le clavier. Son iframe
+         ne commence pas en haut de l'écran : on lui donne la hauteur visible
+         à partir de son propre bord supérieur. */
+      f = frames.score;
+      var r = f.getBoundingClientRect();
+      msg.height = Math.max(120, (vv ? vv.offsetTop + vv.height : window.innerHeight) - r.top);
+      msg.top = 0;
+    }
     if (f && f.contentWindow){ try{ f.contentWindow.postMessage(msg, location.origin); }catch(e){} }
   }
   if (window.visualViewport){
