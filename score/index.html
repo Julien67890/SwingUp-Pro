@@ -630,6 +630,13 @@ html.su-embedded .ptab i,html.su-embedded .rgrid .rn i,html.su-embedded .pip-nam
 /* récap : texte plus grand, défilement horizontal, colonne joueur fixe */
 html.su-embedded #r9{overflow-x:auto;font-size:1.05rem;scrollbar-width:none;margin:10px 0 0}
 html.su-embedded #r9::-webkit-scrollbar{display:none}
+html.su-embedded .pstrip{overflow-x:auto;scrollbar-width:none;margin:6px 0 0;font-size:.95rem;background:#f3efe2;border:1px solid rgba(255,255,255,.4);border-radius:6px}
+html.su-embedded .pstrip::-webkit-scrollbar{display:none}
+html.su-embedded .pstrip > div{height:30px}
+html.su-embedded .pstrip .rn{overflow:hidden;text-overflow:ellipsis;font-size:.85rem}
+html.su-embedded .rgrid .rt{position:sticky;right:0;z-index:2;background:#f3efe2;padding-left:4px;box-shadow:-6px 0 6px -6px rgba(0,0,0,.25)}
+html.su-embedded .rgrid .rt.rp{background:#f6f2e4}
+html.su-embedded .rgrid .rt b{border-radius:6px}
 html.su-embedded .rgrid > div{height:40px;font-variant-numeric:lining-nums tabular-nums}
 html.su-embedded .rgrid .rn{position:sticky;left:0;z-index:2;background:#fff;padding-left:8px;font-weight:500}
 html.su-embedded .rgrid .rh.rn{background:#efebdd}
@@ -2453,7 +2460,7 @@ function renderRecap9(){
   const from=Math.floor(S.cur/9)*9,to=Math.min(from+9,S.holes),n=to-from;
   const emb=document.documentElement.classList.contains('su-embedded');
   g.style.gridTemplateColumns=emb?'84px repeat('+n+',42px) 58px':'minmax(0,3.4fr) repeat('+n+',minmax(0,1fr)) minmax(0,1.8fr)';
-  let h='<div class="rh rn">'+esc(T('Joueur'))+'</div>';
+  let h='<div class="rh rn">'+esc(T('Trou'))+'</div>';
   for(let i=from;i<to;i++)h+='<div class="rh hn'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+(i+1)+'</div>';
   h+='<div class="rt"><b>'+esc(T('Total'))+'</b></div>';
   if(emb){
@@ -2524,7 +2531,40 @@ function advance(){
 
 /* Onglets joueurs : nom + total (écart au par). Un appui sur l'onglet
    déjà actif permet de renommer le joueur. */
+function syncOwnerName(){
+  /* SwingUp Pro : le joueur 1 porte toujours le prénom du compte (réglé dans le télémètre). */
+  if(!document.documentElement.classList.contains('su-embedded'))return;
+  if(!profileName||!S||!S.players||!S.players[0])return;
+  if(S.players[0].name!==profileName||S.ownerName!==profileName){
+    S.players[0].name=profileName;S.ownerName=profileName;save();
+  }
+}
+function renderStrip(){
+  if(!document.documentElement.classList.contains('su-embedded'))return;
+  let el=$('#pstrip');
+  if(!el){
+    el=document.createElement('div');el.id='pstrip';el.className='rgrid pstrip';
+    const sc=document.querySelector('#game .scorecard');if(!sc)return;
+    sc.parentNode.insertBefore(el,sc);
+  }
+  const p=S.players[S.active]||S.players[0];if(!p)return;
+  const from=Math.floor(S.cur/9)*9,to=Math.min(from+9,S.holes),n=to-from;
+  el.style.gridTemplateColumns='56px repeat('+n+',38px) 54px';
+  let h='<div class="rh rn">'+esc(T('Trou'))+'</div>';
+  for(let i=from;i<to;i++)h+='<div class="rh hn'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+(i+1)+'</div>';
+  h+='<div class="rt"><b>'+esc(T('Total'))+'</b></div>';
+  h+='<div class="rn rp">Par</div>';
+  for(let i=from;i<to;i++)h+='<div class="rc rp'+(i===S.cur?' now':'')+'">'+S.pars[i]+'</div>';
+  h+='<div class="rt rp"><b>'+parTot()+'</b></div>';
+  h+='<div class="rn">'+esc(p.name||('J'+(S.active+1)))+'</div>';
+  for(let i=from;i<to;i++){const v=p.scores[i];h+='<div class="rc'+(i===S.cur?' now':'')+'">'+(v===null?'':v)+'</div>';}
+  h+='<div class="rt"><b>'+(p.scores.some(x=>x!==null)?played(p):'—')+'</b></div>';
+  el.innerHTML=h;
+  const c=el.querySelector('.rh.hn.now');if(c)el.scrollLeft=Math.max(0,c.offsetLeft-120);
+  el.querySelectorAll('[data-h]').forEach(x=>x.onclick=()=>go(+x.dataset.h));
+}
 function renderDots(){
+  syncOwnerName();renderStrip();
   const d=$('#ptabs');d.innerHTML='';
   S.players.forEach((p,i)=>{
     const any=p.scores.some(x=>x!==null);
@@ -2535,7 +2575,7 @@ function renderDots(){
     b.setAttribute('aria-current',i===S.active?'true':'false');
     b.innerHTML='<i style="--pc:'+COLORS[i%COLORS.length]+'"></i>'+
       '<div class="pt"><span>'+esc(p.name||('J'+(i+1)))+'</span><small>'+(any?played(p)+' ('+fmt(vsPar(p))+')':'—')+'</small></div>';
-    b.onclick=()=>{if(i===S.active)rename(i,b.querySelector('.pt span'));else setActive(i);};
+    b.onclick=()=>{if(i!==S.active)setActive(i);else if(!(i===0&&document.documentElement.classList.contains('su-embedded')))rename(i,b.querySelector('.pt span'));};
     d.appendChild(b);
   });
 }
@@ -4077,6 +4117,7 @@ if('serviceWorker' in navigator){
           profileName = d.name;
           if (typeof updateAccountBtn === 'function') updateAccountBtn();
           if (typeof renderNames === 'function') renderNames();
+          try{ if (S && S.players && typeof renderAll === 'function' && !document.getElementById('game').classList.contains('hidden')) renderAll(); }catch(_){ }
         }
       }
     }catch(e){}
