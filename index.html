@@ -587,9 +587,10 @@ function startApp(){
       backEl.classList.remove('on'); backEl.style.opacity = '0';
     }
   }
+  var openedAt = 0; /* le clic tactile qui suit le tap d'ouverture tombe sur le fond tout juste apparu : on l'ignore */
   function openSheet(fromPop){
     if (sheetOpen || current !== 'telemetre') return;
-    sheetOpen = true;
+    sheetOpen = true; openedAt = Date.now();
     viewsEl.classList.add('sheet-vis'); backEl.classList.add('on');
     setY(0, true);
     if (!fromPop){ try{ history.pushState({ suSheet:1 }, ''); }catch(e){} }
@@ -623,6 +624,7 @@ function startApp(){
   window.addEventListener('resize', function(){ if (!sheetOpen && current === 'telemetre') setY(sheetH() + 12, false); });
 
   /* glissé : pointer events + capture (l'iframe ne reçoit rien sur le bandeau / l'entête) */
+  var justDragged = 0;
   function drag(el, mode){
     var y0 = 0, dy = 0, t0 = 0, on = false;
     el.addEventListener('pointerdown', function(e){
@@ -641,10 +643,10 @@ function startApp(){
       }
     });
     function end(){
-      if (!on) return; on = false;
+      if (!on) return; on = false; justDragged = Date.now();
       var fast = Math.abs(dy) / Math.max(1, Date.now() - t0) > 0.5;
       if (mode === 'peek'){
-        if (Math.abs(dy) < 8 || dy < -70 || (fast && dy < -20)){ sheetOpen = false; openSheet(); }
+        if (Math.abs(dy) < 14 || dy < -70 || (fast && dy < -20)){ sheetOpen = false; openSheet(); }
         else { sheetOpen = false; backEl.classList.remove('on'); setY(sheetH() + 12, true); setTimeout(function(){ viewsEl.classList.remove('sheet-vis'); }, 300); }
       } else {
         if (dy > 90 || (fast && dy > 25)) closeSheet(); else setY(0, true);
@@ -655,7 +657,9 @@ function startApp(){
   }
   drag(peekEl, 'peek'); drag(headEl, 'head');
   document.getElementById('sheetClose').addEventListener('click', function(){ closeSheet(); });
-  backEl.addEventListener('click', function(){ closeSheet(); });
+  backEl.addEventListener('click', function(){ if (Date.now() - openedAt < 500) return; closeSheet(); });
+  /* filet de sécurité : un simple clic (sans glissé géré) ouvre aussi la feuille */
+  peekEl.addEventListener('click', function(){ if (!sheetOpen && Date.now() - justDragged > 400) openSheet(); });
   peekEl.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') openSheet(); });
 
   /* bandeau : résumé envoyé par la Carte de score */

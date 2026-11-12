@@ -8,7 +8,7 @@
    celui-ci pour tout ce qui se passe dans /telemetre/ et /score/.
    Incrémenter CACHE_VERSION à chaque mise en ligne.
    ========================================================= */
-const CACHE_VERSION = 'swinguppro-shell-v7';
+const CACHE_VERSION = 'swinguppro-shell-v9';
 
 const APP_SHELL = [
   './',
@@ -46,7 +46,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith('swinguppro-shell-') && k !== CACHE_VERSION).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );

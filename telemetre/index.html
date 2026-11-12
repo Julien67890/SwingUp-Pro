@@ -2473,6 +2473,10 @@ function initMap(){
   bindGestures(); applyRot(); fitModals();
   setTimeout(sizeMap, 120);
   addEventListener("resize", sizeMap);
+  /* Pro : la hauteur du télémètre change sans que la fenêtre soit redimensionnée
+     (bandeau de score en bas, panneaux qui s'ouvrent) → la carte gardait l'ancienne
+     taille et laissait des zones vertes vides. On suit la taille réelle du conteneur. */
+  if (window.ResizeObserver){ let rz=0; new ResizeObserver(()=>{ cancelAnimationFrame(rz); rz=requestAnimationFrame(sizeMap); }).observe($("map")); }
   addEventListener("orientationchange", () => setTimeout(sizeMap, 250));
 }
 function hitTest(ll){

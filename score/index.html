@@ -626,7 +626,7 @@ html.su-embedded .parpill .pv{font-family:'Outfit',sans-serif;font-weight:600;fo
 html.su-embedded .dial .num{font-family:'Outfit',system-ui,sans-serif;font-weight:600;font-variant-numeric:lining-nums tabular-nums;
   line-height:1;display:grid;place-items:center;width:100%;height:100%;padding:0;margin:0;text-align:center}
 /* plus de pastilles de couleur à côté des joueurs */
-html.su-embedded .ptab i,html.su-embedded .rgrid .rn i,html.su-embedded .pip-name i{display:none!important}
+html.su-embedded .ptab i,html.su-embedded .rgrid .rn i,html.su-embedded .pip-name i,html.su-embedded .nrow .pip{display:none!important}
 /* récap : texte plus grand, défilement horizontal, colonne joueur fixe */
 html.su-embedded #r9{overflow-x:auto;font-size:1.05rem;scrollbar-width:none;margin:10px 0 0}
 html.su-embedded #r9::-webkit-scrollbar{display:none}
@@ -2743,7 +2743,7 @@ function openStats(courseId,layoutId){
   $('#stEmpty').classList.toggle('hidden',has);
   if(!has){$('#stSub').textContent=T('aucune partie enregistrée');return;}
   const cS=$('#stCourse');
-  cS.innerHTML='<option value="all">'+T('Tous les golfs')+'</option>'+db.courses.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
+  cS.innerHTML='<option value="all">Choisir un golf</option>'+db.courses.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
   cS.value=courseId&&db.courses.some(c=>c.id===courseId)?courseId:'all';
   cS.onchange=()=>{$('#stLayout').value='all';renderStats();};
   $('#stLayout').onchange=()=>renderStats();
@@ -2774,7 +2774,7 @@ function renderStats(wantLayout){
   const seen=[];
   base.forEach(x=>{if(x.L&&!seen.some(l=>l.id===x.L.id))seen.push(x.L);});
   const keep=typeof wantLayout==='string'?wantLayout:lS.value;
-  lS.innerHTML='<option value="all">'+T('Tous')+'</option>'+seen.map(l=>'<option value="'+l.id+'">'+esc(l.name)+' · '+l.holes+'t</option>').join('');
+  lS.innerHTML='<option value="all">Choisir un parcours</option>'+seen.map(l=>'<option value="'+l.id+'">'+esc(l.name)+' · '+l.holes+'t</option>').join('');
   lS.value=seen.some(l=>l.id===keep)?keep:'all';
   lS.disabled=cid==='all';
   const lid=lS.value;

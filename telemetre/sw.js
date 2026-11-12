@@ -4,7 +4,7 @@
    la carte de score, même si les deux sont sur le même domaine.
    Incrémenter CACHE_VERSION à chaque mise en ligne.
    ========================================================= */
-const CACHE_VERSION = 'swingup-telemetre-v41';
+const CACHE_VERSION = 'swinguppro-tele-v42';
 
 /* Cache des tuiles d'imagerie : nom FIXE, volontairement en dehors de
    CACHE_VERSION, pour survivre aux mises à jour de l'appli (sinon chaque
@@ -67,7 +67,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_VERSION && k !== TILE_CACHE).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith('swinguppro-tele-') && k !== CACHE_VERSION).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
