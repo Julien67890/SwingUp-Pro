@@ -632,12 +632,14 @@ html.su-embedded #r9{overflow-x:auto;font-size:1.05rem;scrollbar-width:none;marg
 html.su-embedded #r9::-webkit-scrollbar{display:none}
 html.su-embedded .pstrip{overflow-x:auto;scrollbar-width:none;font-size:.95rem;background:#f3efe2;border:1px solid rgba(255,255,255,.4);border-radius:6px}
 html.su-embedded .pstrip::-webkit-scrollbar{display:none}
-html.su-embedded .pstrip > div{height:44px}
+html.su-embedded .pstrip > div{height:38px}
 html.su-embedded .pstrip{margin:6px 0 12px}
-html.su-embedded .pstrip .sc{flex-direction:column;gap:1px;cursor:pointer}
-html.su-embedded .pstrip .sc b{font-size:.95rem;font-weight:600;line-height:1}
-html.su-embedded .pstrip .si{display:block;width:18px;height:15px}
+html.su-embedded .pstrip .sc{position:relative;cursor:pointer}
+html.su-embedded .pstrip .sc em{position:absolute;top:3px;right:3px;font-style:normal;font-weight:800;font-size:.8rem;line-height:1;color:var(--green-deep)}
+html.su-embedded .pstrip .si{display:block;width:24px;height:20px}
 html.su-embedded .pstrip .si svg{width:100%;height:100%;display:block}
+html.su-embedded .pstrip .si-alb{color:#c9a227}
+html.su-embedded .pstrip .si-tri{color:#8f1d1d}
 html.su-embedded .pstrip .si-bir{color:#1f9d55}
 html.su-embedded .pstrip .si-par{color:#13361f}
 html.su-embedded .pstrip .si-bog{color:#2b6fd6}
@@ -2491,7 +2493,9 @@ const ICO={
   bir:'<svg viewBox="0 0 30 26"><path d="M1 11c4-.6 7.2.8 9.6 4C13 9 18 4.6 25 3.4l4 .6-3.4 2c-3 1.8-5.2 5-6 9.4-.6 3.4-3.4 5.2-6.6 4.4C9.6 19 5.6 16 1 11z" fill="currentColor"/></svg>',
   par:'<svg viewBox="0 0 30 26" fill="none"><ellipse cx="13" cy="23" rx="8" ry="2" fill="#5cb85c" opacity=".8"/><path d="M13 23V3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M13.5 3.5l11 4.2-11 4.3z" fill="currentColor"/></svg>',
   bog:'<svg viewBox="0 0 30 26"><path d="M15 3l12 20H3z" fill="currentColor"/></svg>',
-  dbl:'<svg viewBox="0 0 30 26"><path d="M9 4l8.5 19H.5zM21 4l8.5 19h-17z" fill="currentColor"/></svg>'
+  dbl:'<svg viewBox="0 0 30 26"><path d="M9 4l8.5 19H.5zM21 4l8.5 19h-17z" fill="currentColor"/></svg>',
+  alb:'<svg viewBox="0 0 30 26"><g fill="currentColor"><path transform="translate(0,-1) scale(.7)" d="M1 11c4-.6 7.2.8 9.6 4C13 9 18 4.6 25 3.4l4 .6-3.4 2c-3 1.8-5.2 5-6 9.4-.6 3.4-3.4 5.2-6.6 4.4C9.6 19 5.6 16 1 11z"/><path transform="translate(9,8) scale(.7)" d="M1 11c4-.6 7.2.8 9.6 4C13 9 18 4.6 25 3.4l4 .6-3.4 2c-3 1.8-5.2 5-6 9.4-.6 3.4-3.4 5.2-6.6 4.4C9.6 19 5.6 16 1 11z"/></g></svg>',
+  tri:'<svg viewBox="0 0 38 26"><path d="M6.5 5l6.5 18H0zM19 5l6.5 18h-13zM31.5 5L38 23H25z" fill="currentColor"/></svg>'
 };
 function renderCards(){
   const t=$('#track');t.innerHTML='';
@@ -2559,12 +2563,16 @@ function renderStrip(){
   const p=S.players[S.active]||S.players[0];if(!p)return;
   const from=Math.floor(S.cur/9)*9,to=Math.min(from+9,S.holes),n=to-from;
   el.style.gridTemplateColumns='56px repeat('+n+',38px) 54px';
-  const kind=d=>d<=-1?'bir':d===0?'par':d===1?'bog':'dbl';
+  const kind=d=>d<=-2?'alb':d===-1?'bir':d===0?'par':d===1?'bog':d===2?'dbl':'tri';
   let h='<div class="rn">'+esc(p.name||('J'+(S.active+1)))+'</div>';
   for(let i=from;i<to;i++){
     const v=p.scores[i];
-    h+='<div class="rc sc'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+
-      (v===null?'':'<span class="si si-'+kind(v-S.pars[i])+'">'+ICO[kind(v-S.pars[i])]+'</span><b>'+v+'</b>')+'</div>';
+    let inner='';
+    if(v!==null){
+      const d=v-S.pars[i],k=kind(d);
+      inner='<span class="si si-'+k+'">'+ICO[k]+'</span>'+(d<=-3?'<em>\u2212</em>':d>=4?'<em>+</em>':'');
+    }
+    h+='<div class="rc sc'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+inner+'</div>';
   }
   h+='<div class="rt"><b>'+(p.scores.some(x=>x!==null)?played(p):'—')+'</b></div>';
   el.innerHTML=h;

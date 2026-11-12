@@ -8,7 +8,7 @@
    celui-ci pour tout ce qui se passe dans /telemetre/ et /score/.
    Incrémenter CACHE_VERSION à chaque mise en ligne.
    ========================================================= */
-const CACHE_VERSION = 'swinguppro-shell-v9';
+const CACHE_VERSION = 'swinguppro-shell-v10';
 
 const APP_SHELL = [
   './',

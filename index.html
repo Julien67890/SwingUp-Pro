@@ -140,7 +140,7 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
 #peek .pl small{font-size:.62rem;letter-spacing:.14em;font-weight:700;color:rgba(246,243,233,.6)}
 #peek .pl b{font-size:.95rem;font-weight:600;color:var(--cream);display:flex;align-items:center;gap:8px;white-space:nowrap}
 #peekBadge{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:7px;background:var(--green-glow);color:var(--green-deep);font-weight:800;font-size:.9rem}
-#peek .pr{flex:0 0 auto;padding-left:12px;border-left:1px solid rgba(246,243,233,.18);font-size:.8rem;color:rgba(246,243,233,.8);white-space:nowrap}
+#peek .pr{flex:0 0 auto;font-size:.95rem;font-weight:600;color:var(--green-glow);white-space:nowrap}
 #views.has-peek #frameTelemetre{bottom:auto;height:calc(100% - var(--peek-h))}
 #sheetBack{position:absolute;inset:0;z-index:4;background:rgba(0,0,0,.5);opacity:0;pointer-events:none}
 #sheetBack.on{pointer-events:auto}
@@ -241,8 +241,8 @@ body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);
       <div class="grip"></div>
       <div class="prow">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f6f3e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
-        <div class="pl"><small>CARTE DE SCORE</small><b><span id="peekHole">Démarrer une partie</span><span id="peekBadge" class="hidden"></span></b></div>
-        <div class="pr hidden" id="peekTotal"></div>
+        <div class="pl"><b>Carte de score</b></div>
+        <div class="pr" id="peekHole">Démarrer</div>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f6f3e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
       </div>
     </div>
@@ -664,16 +664,8 @@ function startApp(){
 
   /* bandeau : résumé envoyé par la Carte de score */
   function updatePeek(m){
-    var hole = document.getElementById('peekHole'), badge = document.getElementById('peekBadge'), tot = document.getElementById('peekTotal');
-    if (!m.active){
-      hole.textContent = 'Démarrer une partie'; badge.classList.add('hidden'); tot.classList.add('hidden'); return;
-    }
-    hole.textContent = 'Trou ' + m.hole;
-    badge.textContent = (m.score === null || m.score === undefined) ? '–' : m.score;
-    badge.classList.remove('hidden');
-    var vs = m.vsPar > 0 ? '+' + m.vsPar : (m.vsPar === 0 ? 'PAR' : String(m.vsPar));
-    tot.textContent = 'Total ' + vs + ' · ' + m.total + ' coup' + (m.total > 1 ? 's' : '');
-    tot.classList.remove('hidden');
+    var hole = document.getElementById('peekHole');
+    hole.textContent = m.active ? 'Trou ' + m.hole : 'Démarrer';
   }
 
   /* ---------- messages venant des modules embarqués (logo tapé / swipe / prêt) ---------- */
