@@ -630,9 +630,18 @@ html.su-embedded .ptab i,html.su-embedded .rgrid .rn i,html.su-embedded .pip-nam
 /* récap : texte plus grand, défilement horizontal, colonne joueur fixe */
 html.su-embedded #r9{overflow-x:auto;font-size:1.05rem;scrollbar-width:none;margin:10px 0 0}
 html.su-embedded #r9::-webkit-scrollbar{display:none}
-html.su-embedded .pstrip{overflow-x:auto;scrollbar-width:none;margin:6px 0 0;font-size:.95rem;background:#f3efe2;border:1px solid rgba(255,255,255,.4);border-radius:6px}
+html.su-embedded .pstrip{overflow-x:auto;scrollbar-width:none;font-size:.95rem;background:#f3efe2;border:1px solid rgba(255,255,255,.4);border-radius:6px}
 html.su-embedded .pstrip::-webkit-scrollbar{display:none}
-html.su-embedded .pstrip > div{height:30px}
+html.su-embedded .pstrip > div{height:44px}
+html.su-embedded .pstrip{margin:6px 0 12px}
+html.su-embedded .pstrip .sc{flex-direction:column;gap:1px;cursor:pointer}
+html.su-embedded .pstrip .sc b{font-size:.95rem;font-weight:600;line-height:1}
+html.su-embedded .pstrip .si{display:block;width:18px;height:15px}
+html.su-embedded .pstrip .si svg{width:100%;height:100%;display:block}
+html.su-embedded .pstrip .si-bir{color:#1f9d55}
+html.su-embedded .pstrip .si-par{color:#13361f}
+html.su-embedded .pstrip .si-bog{color:#2b6fd6}
+html.su-embedded .pstrip .si-dbl{color:#d62f2f}
 html.su-embedded .pstrip .rn{overflow:hidden;text-overflow:ellipsis;font-size:.85rem}
 html.su-embedded .rgrid .rt{position:sticky;right:0;z-index:2;background:#f3efe2;padding-left:4px;box-shadow:-6px 0 6px -6px rgba(0,0,0,.25)}
 html.su-embedded .rgrid .rt.rp{background:#f6f2e4}
@@ -2550,14 +2559,13 @@ function renderStrip(){
   const p=S.players[S.active]||S.players[0];if(!p)return;
   const from=Math.floor(S.cur/9)*9,to=Math.min(from+9,S.holes),n=to-from;
   el.style.gridTemplateColumns='56px repeat('+n+',38px) 54px';
-  let h='<div class="rh rn">'+esc(T('Trou'))+'</div>';
-  for(let i=from;i<to;i++)h+='<div class="rh hn'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+(i+1)+'</div>';
-  h+='<div class="rt"><b>'+esc(T('Total'))+'</b></div>';
-  h+='<div class="rn rp">Par</div>';
-  for(let i=from;i<to;i++)h+='<div class="rc rp'+(i===S.cur?' now':'')+'">'+S.pars[i]+'</div>';
-  h+='<div class="rt rp"><b>'+parTot()+'</b></div>';
-  h+='<div class="rn">'+esc(p.name||('J'+(S.active+1)))+'</div>';
-  for(let i=from;i<to;i++){const v=p.scores[i];h+='<div class="rc'+(i===S.cur?' now':'')+'">'+(v===null?'':v)+'</div>';}
+  const kind=d=>d<=-1?'bir':d===0?'par':d===1?'bog':'dbl';
+  let h='<div class="rn">'+esc(p.name||('J'+(S.active+1)))+'</div>';
+  for(let i=from;i<to;i++){
+    const v=p.scores[i];
+    h+='<div class="rc sc'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+
+      (v===null?'':'<span class="si si-'+kind(v-S.pars[i])+'">'+ICO[kind(v-S.pars[i])]+'</span><b>'+v+'</b>')+'</div>';
+  }
   h+='<div class="rt"><b>'+(p.scores.some(x=>x!==null)?played(p):'—')+'</b></div>';
   el.innerHTML=h;
   const c=el.querySelector('.rh.hn.now');if(c)el.scrollLeft=Math.max(0,c.offsetLeft-120);
