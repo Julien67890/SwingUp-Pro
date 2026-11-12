@@ -617,6 +617,29 @@ html.su-embedded .ptabs{padding-top:6px;padding-bottom:2px}
 html.su-embedded .holenav{padding-top:6px;margin-top:4px}
 html.su-embedded .holenav button{padding:8px}
 
+/* ---- ajustements de lisibilité (feuille) ---- */
+/* titre du trou et par : plus discrets */
+html.su-embedded .gtitle h2{font-size:1.5rem;line-height:1.1}
+html.su-embedded .parpill{margin-top:4px}
+html.su-embedded .parpill .pv{font-family:'Outfit',sans-serif;font-weight:600;font-size:1.05rem;min-width:64px}
+/* score dans le cercle : police sans empattement à chiffres alignés, centré */
+html.su-embedded .dial .num{font-family:'Outfit',system-ui,sans-serif;font-weight:600;font-variant-numeric:lining-nums tabular-nums;
+  line-height:1;display:grid;place-items:center;width:100%;height:100%;padding:0;margin:0;text-align:center}
+/* plus de pastilles de couleur à côté des joueurs */
+html.su-embedded .ptab i,html.su-embedded .rgrid .rn i,html.su-embedded .pip-name i{display:none!important}
+/* récap : texte plus grand, défilement horizontal, colonne joueur fixe */
+html.su-embedded #r9{overflow-x:auto;font-size:1.05rem;scrollbar-width:none;margin:10px 0 0}
+html.su-embedded #r9::-webkit-scrollbar{display:none}
+html.su-embedded .rgrid > div{height:40px;font-variant-numeric:lining-nums tabular-nums}
+html.su-embedded .rgrid .rn{position:sticky;left:0;z-index:2;background:#fff;padding-left:8px;font-weight:500}
+html.su-embedded .rgrid .rh.rn{background:#efebdd}
+html.su-embedded .rgrid .rp{background:#f6f2e4;color:var(--green-mid);font-weight:600}
+html.su-embedded .rgrid .rp.rn{background:#f6f2e4}
+html.su-embedded .rgrid .rc.rp{border-left-color:#e6e0cd}
+html.su-embedded .rgrid .rc.now{background:rgba(45,106,79,.12)}
+html.su-embedded .rgrid .rc.rp.now{background:rgba(45,106,79,.18)}
+html.su-embedded .rgrid .rh.hn.now{background:var(--gl);color:var(--cream);font-weight:700}
+
 /* =================================================================
    SwingUp Pro — charte alignée sur le Télémètre
    (fond vert foncé uni, surfaces crème mates, coins 6 px,
@@ -2428,16 +2451,23 @@ function renderAll(){
 function renderRecap9(){
   const g=$('#r9');if(!g)return;
   const from=Math.floor(S.cur/9)*9,to=Math.min(from+9,S.holes),n=to-from;
-  g.style.gridTemplateColumns='minmax(0,3.4fr) repeat('+n+',minmax(0,1fr)) minmax(0,1.8fr)';
+  const emb=document.documentElement.classList.contains('su-embedded');
+  g.style.gridTemplateColumns=emb?'84px repeat('+n+',42px) 58px':'minmax(0,3.4fr) repeat('+n+',minmax(0,1fr)) minmax(0,1.8fr)';
   let h='<div class="rh rn">'+esc(T('Joueur'))+'</div>';
   for(let i=from;i<to;i++)h+='<div class="rh hn'+(i===S.cur?' now':'')+'" data-h="'+i+'">'+(i+1)+'</div>';
   h+='<div class="rt"><b>'+esc(T('Total'))+'</b></div>';
+  if(emb){
+    h+='<div class="rn rp">Par</div>';
+    for(let i=from;i<to;i++)h+='<div class="rc rp'+(i===S.cur?' now':'')+'">'+S.pars[i]+'</div>';
+    h+='<div class="rt rp"><b>'+parTot()+'</b></div>';
+  }
   S.players.forEach((p,k)=>{
     h+='<div class="rn"><i style="--pc:'+COLORS[k%COLORS.length]+'"></i><span>'+esc(p.name||('J'+(k+1)))+'</span></div>';
     for(let i=from;i<to;i++){const v=p.scores[i];h+='<div class="rc'+(i===S.cur?' now':'')+'">'+(v===null?'':v)+'</div>';}
     h+='<div class="rt"><b>'+(p.scores.some(x=>x!==null)?played(p):'—')+'</b></div>';
   });
   g.innerHTML=h;
+  if(emb){const c=g.querySelector('.rh.hn.now');if(c)g.scrollLeft=Math.max(0,c.offsetLeft-120);}
   g.querySelectorAll('[data-h]').forEach(el=>el.onclick=()=>go(+el.dataset.h));
 }
 
@@ -2487,7 +2517,7 @@ function advance(){
     let waiting=-1;
     for(let k=1;k<=n;k++){const j=(S.active+k)%n;if(S.players[j].scores[S.cur]===null){waiting=j;break;}}
     if(waiting>=0){setActive(waiting);return;}
-    if(S.cur<S.holes-1){S.active=0;go(S.cur+1);toast(T('Trou {n}',{n:S.cur+1}));}
+    if(S.cur<S.holes-1){S.active=0;go(S.cur+1);}
     else{S.active=0;renderAll();toast(T('Parcours terminé'));}
   },260);
 }
